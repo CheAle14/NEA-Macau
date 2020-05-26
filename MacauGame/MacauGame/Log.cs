@@ -129,11 +129,11 @@ namespace MacauGame
                 "#" + frame.GetFileLineNumber();
         }
 
-        static string findLocation()
-        {
+        public static string FindLocation(int frames = 2)
+        { // 0 = this function; 1 == that caller (the ones below); 2 == the one we want
             var stack = new StackTrace(true);
-            var frames = stack.GetFrame(2); // 0 = this function; 1 == that caller (the ones below); 2 == the one we want
-            return FormatStackFrame(frames);
+            var frame = stack.GetFrame(frames); 
+            return FormatStackFrame(frame);
         }
 
         public static void Trace(string location, string message)
@@ -146,15 +146,15 @@ namespace MacauGame
         public static void Trace(string message)
         {
 #if DEBUG
-            LogMsg(new LogMessage(findLocation(), LogSeverity.Trace, message));
+            LogMsg(new LogMessage(FindLocation(), LogSeverity.Trace, message));
 #endif
         }
         public static void Debug(string location, string message) => LogMsg(new LogMessage(location, LogSeverity.Debug, message));
-        public static void Debug(string message) => LogMsg(new LogMessage(findLocation(), LogSeverity.Debug, message));
+        public static void Debug(string message) => LogMsg(new LogMessage(FindLocation(), LogSeverity.Debug, message));
         public static void Info(string location, string message) => LogMsg(new LogMessage(location, LogSeverity.Info, message));
-        public static void Info(string message) => LogMsg(new LogMessage(findLocation(), LogSeverity.Info, message));
+        public static void Info(string message) => LogMsg(new LogMessage(FindLocation(), LogSeverity.Info, message));
         public static void Warn(string location, string message) => LogMsg(new LogMessage(location, LogSeverity.Warning, message));
-        public static void Warn(string message) => LogMsg(new LogMessage(findLocation(), LogSeverity.Warning, message));
+        public static void Warn(string message) => LogMsg(new LogMessage(FindLocation(), LogSeverity.Warning, message));
         public static void Error(string location, Exception ex) => LogMsg(new LogMessage(location, LogSeverity.Error, null, ex));
         public static void Error(string location, string message) => LogMsg(new LogMessage(location, LogSeverity.Error, message));
 

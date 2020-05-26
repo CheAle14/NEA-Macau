@@ -14,12 +14,12 @@ namespace MacauGame.Server
 {
     public class MacauServer
     {
-        public Dictionary<int, Player> Players { get; set; }
+        public Dictionary<string, ClientBehaviour> Players { get; set; }
         public WebSocketServer WsServer { get; set; }
         const int PORT = 26007;
         public MacauServer()
         {
-            Players = new Dictionary<int, Player>();
+            Players = new Dictionary<string, ClientBehaviour>();
             WsServer = new WebSocketServer(PORT);
             WsServer.Log.Level = WebSocketSharp.LogLevel.Trace;
             WsServer.Log.Output = (data, filePath) =>

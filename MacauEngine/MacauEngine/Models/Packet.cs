@@ -24,6 +24,14 @@ namespace MacauEngine.Models
                 Response = maybe.ToObject<int>();
         }
 
+        public Packet Reply(PacketId id, JToken value)
+        {
+            return new Packet(id, value, 0)
+            {
+                Response = this.Sequence
+            };
+        }
+
         public JObject ToJson()
         {
             var jobj = new JObject();
@@ -52,16 +60,15 @@ namespace MacauEngine.Models
         None = 0,
 
         #region Common Codes
-
+        UnknownCode,
         #endregion
 
         #region Client -> Server Codes
-        Connect,
-
+        GetPlayerInfo,
         #endregion
 
         #region Server -> Client Codes
-
+        ProvidePlayerInfo,
         #endregion
     }
 }
