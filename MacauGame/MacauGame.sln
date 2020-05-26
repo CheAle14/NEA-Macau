@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30011.22
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MacauGame", "MacauGame\MacauGame.csproj", "{92DCB6E5-89AE-4669-B5A2-B13F9F65A835}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MacauEngine", "..\MacauEngine\MacauEngine\MacauEngine.csproj", "{F846CAFA-00A5-4E7D-AB37-802535CA197B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{92DCB6E5-89AE-4669-B5A2-B13F9F65A835}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92DCB6E5-89AE-4669-B5A2-B13F9F65A835}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92DCB6E5-89AE-4669-B5A2-B13F9F65A835}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92DCB6E5-89AE-4669-B5A2-B13F9F65A835}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F846CAFA-00A5-4E7D-AB37-802535CA197B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F846CAFA-00A5-4E7D-AB37-802535CA197B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F846CAFA-00A5-4E7D-AB37-802535CA197B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F846CAFA-00A5-4E7D-AB37-802535CA197B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2313F9DD-F3FD-410E-8BDE-113B1626E2EA}
+	EndGlobalSection
+EndGlobal
