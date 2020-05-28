@@ -1,0 +1,229 @@
+﻿using MacauEngine.Models;
+using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using WebSocketSharp;
+
+namespace MacauGame.Client
+{
+    public partial class MacauClient : Form
+    {
+        public MacauClient()
+        {
+            InitializeComponent();
+        }
+
+        private Dictionary<int, AwaitedPacket> waitingForResponse = new Dictionary<int, AwaitedPacket>();
+
+        WebSocket WS_Client { get; set; }
+
+        private void MacauClient_Load(object sender, EventArgs e)
+        {
+            this.Text = "Fetching servers...";
+            new Thread(updateML).Start();
+        }
+
+        void updateML()
+        {
+            var servers = MLAPI.MasterList.GetServers(Program.GAME_TYPE, false).Result;
+            this.Invoke(new Action(() =>
+            {
+                foundServers(servers);
+            }));
+        }
+
+        void foundServers(List<MLAPI.Classes.Client.ServerInfo> servers)
+        {
+            foreach(var srv in servers)
+            {
+                var row = new object[] { srv.Name, $"{srv.Players.Count}", srv.ExternalIP, srv.InternalIP };
+                dgvMasterlist.Rows.Add(row);
+            }
+            this.Text = $"Found {servers.Count} online servers";
+        }
+
+        private void txtIP_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            txtIP.ReadOnly = !txtIP.ReadOnly;
+        }
+
+        private void dgvMasterlist_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.ColumnIndex < 0)
+                return;
+            var row = dgvMasterlist.Rows[e.RowIndex];
+            var cell = row.Cells[e.ColumnIndex];
+            if(cell is DataGridViewButtonCell btn)
+            {
+                txtIP.Tag = btn.Value;
+                txtIP.Text = btn.Value.ToString();
+            }
+        }
+
+        private void btnConnect_Click(object sender, EventArgs e)
+        {
+            if(WS_Client != null)
+            {
+                MessageBox.Show("You are already trying to connect to a server");
+                return;
+            }
+            if(string.IsNullOrWhiteSpace(txtName.Text))
+            {
+                MessageBox.Show("You must enter a name");
+                return;
+            }
+            if(string.IsNullOrWhiteSpace(txtIP.Text))
+            {
+                MessageBox.Show("You must select an IP from the masterlist, or double-click for manual entry");
+                return;
+            }
+            if(!(IPAddress.TryParse(txtIP.Text, out var ipad))) 
+            {
+                MessageBox.Show("Could not parse given IP as an actual IP address");
+                return;
+            }
+            WS_Client = new WebSocket($"ws://{ipad}:{Server.MacauServer.PORT}/" +
+                $"?name={Uri.EscapeDataString(txtName.Text)}&hwid={UHWID.UHWIDEngine.AdvancedUid}");
+            Log.Info($"Connecting: {WS_Client.Url}");
+            WS_Client.OnOpen += WS_Client_OnOpen;
+            WS_Client.OnMessage += WS_Client_OnMessage;
+            WS_Client.OnError += WS_Client_OnError;
+            WS_Client.OnClose += WS_Client_OnClose;
+            new Thread(wsOpen).Start();
+        }
+
+        void wsOpen()
+        {
+            try
+            {
+                WS_Client.Connect();
+            }
+            catch (Exception ex)
+            {
+                Log.Error("WSClient", ex);
+                MessageBox.Show($"Could not connect to {WS_Client.Url.Host}: {ex.Message}", "No Connect", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                WS_Client = null;
+            }
+        }
+
+        private void WS_Client_OnClose(object sender, CloseEventArgs e)
+        {
+            Log.Info($"Closed: {e.Code} {e.Reason}");
+        }
+
+        private void WS_Client_OnError(object sender, ErrorEventArgs e)
+        {
+            Log.Info($"Error: {e.Message}\r\n   {e.Exception}");
+        }
+
+        private void WS_Client_OnOpen(object sender, EventArgs e)
+        {
+            Log.Info("Opened WS");
+            MessageBox.Show($"Opened: {this.InvokeRequired}");
+        }
+
+        private void MacauClient_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            try
+            {
+                WS_Client.Send(new Packet(PacketId.Disconnect, JValue.FromObject(e.CloseReason.ToString())).ToString());
+            } catch
+            {
+            }
+            try
+            {
+                WS_Client.Close(CloseStatusCode.Abnormal, e.CloseReason.ToString());
+            } catch { }
+        }
+
+        private void MacauClient_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            MacauGame.Menu.Instance.Client = null;
+            MacauGame.Menu.Instance.Show();
+        }
+
+        public void Send(Packet p) => WS_Client.Send(p.ToString());
+        public Packet GetResponse(Packet packet, int timeout = 30000)
+        {
+            var awaiter = new AwaitedPacket()
+            {
+                Sent = packet,
+                Holder = new ManualResetEventSlim()
+            };
+            waitingForResponse[packet.Sequence] = awaiter;
+            Send(packet);
+            awaiter.Holder.Wait(timeout);
+            return awaiter.Recieved;
+        }
+
+        Player GetPlayer(string id)
+        {
+            var packet = new Packet(PacketId.GetPlayerInfo, JValue.FromObject(id));
+            var response = GetResponse(packet);
+            if (response == null)
+                return new Player(id, "[Could not fetch info]");
+            return new Player((JObject)response.Content);
+        }
+
+        void handlePacket(Packet packet)
+        {
+        }
+
+        Semaphore LOCK = new Semaphore(1, 1);
+        void packetThread(object o)
+        {
+            if (!(o is Packet p))
+                return;
+            LOCK.WaitOne();
+            try
+            {
+                handlePacket(p);
+            } finally
+            {
+                LOCK.Release();
+            }
+        }
+
+        private void WS_Client_OnMessage(object sender, MessageEventArgs e)
+        {
+            Log.Trace(e.Data);
+            try
+            {
+                var json = Newtonsoft.Json.Linq.JObject.Parse(e.Data);
+                var packet = new Packet(json);
+                Log.Debug($"Packet {packet.Sequence} responding to {packet.Response}; id {packet.Id}");
+                if (packet.Response.HasValue)
+                {
+                    if (waitingForResponse.TryGetValue(packet.Response.Value, out var waiting))
+                    {
+                        waiting.Recieved = packet;
+                        waiting.Holder.Set();
+                        waitingForResponse.Remove(packet.Response.Value);
+                    }
+                    else
+                    {
+                        Log.Warn($"Packet is attempting to release an unknown awaiter");
+                    }
+                }
+                else
+                {
+                    var th = new Thread(packetThread);
+                    th.Start(packet);
+                }
+            } catch (Exception ex)
+            {
+                Log.Error("ClientRec", ex);
+                WS_Client.Close(CloseStatusCode.Abnormal, ex.Message);
+            }
+        }
+    }
+}

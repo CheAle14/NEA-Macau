@@ -5,7 +5,9 @@ VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MacauGame", "MacauGame\MacauGame.csproj", "{92DCB6E5-89AE-4669-B5A2-B13F9F65A835}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MacauEngine", "..\MacauEngine\MacauEngine\MacauEngine.csproj", "{F846CAFA-00A5-4E7D-AB37-802535CA197B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MacauEngine", "..\MacauEngine\MacauEngine\MacauEngine.csproj", "{F846CAFA-00A5-4E7D-AB37-802535CA197B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MLAPI", "..\..\masterlist\MLAPI\MLAPI\MLAPI.csproj", "{04FF400A-F1D6-4EB7-9A2D-52E5DDA2AE0C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{F846CAFA-00A5-4E7D-AB37-802535CA197B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F846CAFA-00A5-4E7D-AB37-802535CA197B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F846CAFA-00A5-4E7D-AB37-802535CA197B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04FF400A-F1D6-4EB7-9A2D-52E5DDA2AE0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04FF400A-F1D6-4EB7-9A2D-52E5DDA2AE0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04FF400A-F1D6-4EB7-9A2D-52E5DDA2AE0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04FF400A-F1D6-4EB7-9A2D-52E5DDA2AE0C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

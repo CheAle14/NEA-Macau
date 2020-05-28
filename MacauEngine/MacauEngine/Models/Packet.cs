@@ -61,14 +61,29 @@ namespace MacauEngine.Models
 
         #region Common Codes
         UnknownCode,
+        Error,
+        Success,
+        Message,
+        Disconnect,
         #endregion
 
         #region Client -> Server Codes
         GetPlayerInfo,
+
+        PlaceCards,
+        SkipOrGiveupTurn,
+
+        IndicateSkipsTurn,
+        IndicatePickupCard,
+
         #endregion
 
         #region Server -> Client Codes
         ProvidePlayerInfo,
+        BulkPickupCards,
+        WaitingOnYou,
+        NewCardsPlaced,
+        VoteStartGame,
         #endregion
     }
 }

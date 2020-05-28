@@ -1,4 +1,5 @@
 ﻿using MacauEngine.Models.Enums;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -58,6 +59,27 @@ namespace MacauEngine.Models
         /// </summary>
         public bool IsActive { get; set; }
 
+        public bool IsRed => House == Suit.Diamond || House == Suit.Heart;
+        public bool IsBlack => House == Suit.Club || House == Suit.Spade;
+
+        /// <summary>
+        /// Gets the number of cards a player has to pickup if attacked by this one
+        /// </summary>
+        public int PickupValue {  get
+            {
+                switch(Value)
+                {
+                    case Number.Two:
+                        return 2;
+                    case Number.Three:
+                        return 3;
+                    case Number.Joker:
+                        return IsRed ? 10 : 5;
+                    default:
+                        return 0;
+                }
+            } }
+
         internal bool Empty => Value == Number.None || House == Suit.None;
 
         /// <inheritdoc/>
@@ -65,7 +87,8 @@ namespace MacauEngine.Models
         {
             House = obj["house"].ToObject<Suit>();
             Value = obj["value"].ToObject<Number>();
-            IsActive = obj["active"].ToObject<bool>();
+            IsActive = obj["active"]?.ToObject<bool>() ?? false;
+            AceSuit = obj["suit"]?.ToObject<Suit?>() ?? null;
         }
 
         /// <inheritdoc/>
@@ -74,7 +97,10 @@ namespace MacauEngine.Models
             var json = new JObject();
             json["house"] = JValue.FromObject(House);
             json["value"] = JValue.FromObject(Value);
-            json["active"] = IsActive;
+            if(AceSuit.HasValue)
+                json["suit"] = JValue.FromObject(AceSuit.Value);
+            if(IsActive)
+                json["active"] = IsActive;
             return json;
         }
 
@@ -84,7 +110,7 @@ namespace MacauEngine.Models
         /// <param name="other">Other instance to compare with</param>
         /// <returns>True if both cards refer to the same playing card</returns>
         public bool Equals(Card other)
-        {
+        { // Note: Must not use AceSuit, unless you also change 'PlaceCards' operation in ClientBehaviour. 
             if (other == null)
                 return false; // since we aren't null.
             return other.House == this.House && other.Value == this.Value;

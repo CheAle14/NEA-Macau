@@ -14,7 +14,7 @@ namespace MacauEngine.Models.Enums
         /// <summary>
         /// Default value, no suit set
         /// </summary>
-        None =    0b0_000,
+        None =    0b0_00,
         /// <summary>
         /// Represents the Red Diamonds
         /// </summary>

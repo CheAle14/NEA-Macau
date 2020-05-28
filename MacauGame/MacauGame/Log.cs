@@ -14,9 +14,21 @@ namespace MacauGame
         {
             public DateTime Date { get; set; }
             public string Location { get; set; }
+            public string Origin { get; set; }
             public LogSeverity Severity { get; set; } 
             public string Message { get; set; }
             public Exception Exception { get; set; }
+            bool isParentInHierarchy(Type child, Type parent)
+            {
+                Type c1 = child;
+                do
+                {
+                    if (c1 == parent || c1.IsSubclassOf(parent))
+                        return true;
+                    c1 = c1.DeclaringType;
+                } while (c1 != null);
+                return false;
+            }
             public LogMessage(string location, LogSeverity sev, string message, Exception ex)
             {
                 Date = DateTime.Now;
@@ -24,6 +36,26 @@ namespace MacauGame
                 Severity = sev;
                 Message = message;
                 Exception = ex;
+
+                Origin = "";
+                var stack = new StackTrace();
+                foreach(var frame in stack.GetFrames())
+                {
+                    var method = frame.GetMethod();
+                    var cls = method.DeclaringType;
+                    if (isParentInHierarchy(cls, typeof(Log)))
+                        continue;
+                    Origin = cls.FullName;
+                    break;
+                }
+                if (Origin == "")
+                    Origin = "?";
+                else if (Origin.Contains("Client"))
+                    Origin = "C";
+                else if (Origin.Contains("Server"))
+                    Origin = "S";
+                else if (Origin.Contains("Program"))
+                    Origin = "P";
             }
             public LogMessage(string location, LogSeverity sev, string message) : this(location, sev, message, null) { }
             public LogMessage(string location, Exception ex, string msg = null) : this(location, LogSeverity.Error, msg, ex) { }
@@ -33,7 +65,7 @@ namespace MacauGame
                 var builder = new StringBuilder();
                 builder.Append($"[{Date:hh:mm:ss.fff} ");
                 builder.Append($"{Severity.ToString().ToUpper()}] ");
-                builder.Append($"{Location}: ");
+                builder.Append($"{Location}~{Origin}: ");
                 int length = builder.Length;
                 string lPadding = new string(' ', length);
                 string msg;
@@ -62,7 +94,50 @@ namespace MacauGame
             Error,
             Fatal
         }
-    
+
+        struct LogRec
+        {
+            public Action<LogMessage> Action;
+            public string Origin;
+            public void Invoke(LogMessage msg)
+            {
+                if (Origin == null || msg.Origin == Origin)
+                    Action.Invoke(msg);
+            }
+        }
+
+
+        static List<LogRec> LogRecievers { get; } = new List<LogRec>();
+
+        public static string Register(Action<LogMessage> reciever, string originLimit = null)
+        {
+            var now = DateTime.Now;
+            Console.WriteLine($"Enter Lock for Register {now.Ticks}");
+            lock (padlock)
+            {
+                LogRecievers.Add(new LogRec()
+                {
+                    Action = reciever,
+                    Origin = originLimit
+                });
+            }
+            Console.WriteLine($"Exit Lock for Register {now.Ticks}");
+            return reciever.Method.Name;
+        }
+
+        public static bool UnRegister(string name)
+        {
+            int count;
+            var now = DateTime.Now;
+            Console.WriteLine($"Enter Lock for UnRegister {now.Ticks}");
+            lock(padlock)
+            {
+                count = LogRecievers.RemoveAll(x => x.Action.Method.Name == name);
+            }
+            Console.WriteLine($"Exit Lock for UnRegister {now.Ticks}");
+            return count > 0;
+        }
+
         static ConsoleColor getColor(LogSeverity logSeverity)
         {
             switch(logSeverity)
@@ -84,6 +159,34 @@ namespace MacauGame
             }
         }
 
+        static string consoleId;
+        static Log()
+        {
+            consoleId = Register(ConsoleLog);
+            Register(FileLog);
+        }
+
+        static void ConsoleLog(LogMessage msg)
+        {
+            Console.ForegroundColor = getColor(msg.Severity);
+            Console.WriteLine(msg.ToString());
+        }
+        static void FileLog(LogMessage msg)
+        {
+            var path = GetFilePath(msg.Date);
+            try
+            {
+                File.AppendAllText(path, msg.ToString() + "\r\n");
+            }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"====== FAILED TO LOG TO FILE ======");
+                Console.WriteLine(ex.ToString());
+                Console.WriteLine($"====== FAILED TO LOG TO FILE ======");
+            }
+        }
+
         static object padlock = new object();
 
         public static string GetFolderPath()
@@ -96,26 +199,31 @@ namespace MacauGame
         public static string GetFileName(DateTime date) => $"{date:yyyy-MM-dd}.txt";
         public static string GetFilePath(DateTime date) => Path.Combine(GetFolderPath(), GetFileName(date));
 
-        public static void LogMsg(LogMessage msg)
+        public static void LogMsg(LogMessage msg, string logNot = null)
         {
+            DateTime now = DateTime.Now;
+            Console.WriteLine($"Enter Lock for LogMsg {now.Ticks}");
             lock(padlock)
             {
-                Console.ForegroundColor = getColor(msg.Severity);
-                var content = msg.ToString();
-                Console.WriteLine(content);
-
-                var path = GetFilePath(msg.Date);
-                try
+                foreach (var reciever in LogRecievers)
                 {
-                    File.AppendAllText(path, content + "\r\n");
-                } catch (Exception ex)
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"====== FAILED TO LOG TO FILE ======");
-                    Console.WriteLine(ex.ToString());
-                    Console.WriteLine($"====== FAILED TO LOG TO FILE ======");
+                    string name = reciever.Action.Method.Name;
+                    if(logNot != name)
+                    {
+                        try
+                        {
+                            reciever.Invoke(msg);
+                        }
+                        catch (Exception ex)
+                        {
+                            var thng = new LogMessage("LogMsg:" + name, LogSeverity.Error, "Failed to log", ex);
+                            ConsoleLog(thng);
+                            FileLog(thng);
+                        }
+                    }
                 }
             }
+            Console.WriteLine($"Exit Lock for LogMsg {now.Ticks}");
         }
 
         static string fileName(string s) => s?.Substring(s.LastIndexOf('\\', '/') + 1) ?? "na";

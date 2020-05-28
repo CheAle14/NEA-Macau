@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>CheAle14.MacauGame</id>
+    <version>0.0.0</version>
+    <title>NEA Macau</title>
+    <authors>CheAle14</authors>
+    <owners>CheAle14</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Macau Game</description>
+    <copyright>Copyright 2020</copyright>
+  </metadata>
+  <files>
+    <file src="*.*" target="lib\net45\" exclude="*.pdb;*.nupkg;*.vshost.*"/>
+    <file src="**\*.*" target="lib\net45\" exclude="*.pdb;*.nupkg;*.vshost.*"/>
+  </files>
+</package>

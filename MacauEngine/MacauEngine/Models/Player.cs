@@ -18,22 +18,34 @@ namespace MacauEngine.Models
         public string Id { get; set; }
         public string Name { get; set; }
 
+        public int MissingGoes { get; set; }
+        public bool MultiTurnSkip { get; set; }
+
         public List<Card> Hand { get; set; }
 
-        public override JObject ToJson()
+        public bool Finished => Hand != null && Hand.Count == 0;
+
+        public JObject ToJson(bool includeHand)
         {
             var json = new JObject();
             json["id"] = Id;
             json["name"] = Name;
-            json["hand"] = new JArray(Hand);
+            if (includeHand)
+                json["hand"] = new JArray(Hand);
+            else
+                json["hand"] = new JArray(new List<Card>());
+            if (MissingGoes > 0)
+                json["miss"] = MissingGoes;
             return json;
         }
+        public override JObject ToJson() => ToJson(false);
 
         public override void Update(JObject json)
         {
             Id = json["id"].ToObject<string>();
             Name = json["name"].ToObject<string>();
             Hand = json["hand"].ToObject<List<Card>>();
+            MissingGoes = json["miss"].ToObject<int>();
         }
 
         public override bool Equals(object obj)
