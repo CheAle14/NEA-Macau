@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -11,7 +12,9 @@ namespace MacauGame
 {
     internal class Program
     {
-        public static string GAME_TYPE = "cheale14Macau";
+        public static string AppDataFolderName = "CheAle14-Macau";
+        public static string AppDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), AppDataFolderName);
+        public static string GAME_TYPE => AppDataFolderName.ToLower();
         public static Random RND { get; private set; }
         static void Main(string[] args)
         {
@@ -30,7 +33,7 @@ namespace MacauGame
             Main().GetAwaiter().GetResult();
             Log.Info("Other things2");
 #endif
-            Application.Run(new Menu());
+            Application.Run(new MacauGame.Client.GameClient(null));
         }
 
         static async Task Main()

@@ -18,6 +18,8 @@ namespace MacauEngine.Models
         public string Id { get; set; }
         public string Name { get; set; }
 
+        public int Order { get; set; }
+
         public int MissingGoes { get; set; }
         public bool MultiTurnSkip { get; set; }
 
@@ -30,6 +32,7 @@ namespace MacauEngine.Models
             var json = new JObject();
             json["id"] = Id;
             json["name"] = Name;
+            json["order"] = Order;
             if (includeHand)
                 json["hand"] = new JArray(Hand);
             else

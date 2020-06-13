@@ -62,6 +62,16 @@ namespace MacauEngine.Models
         public bool IsRed => House == Suit.Diamond || House == Suit.Heart;
         public bool IsBlack => House == Suit.Club || House == Suit.Spade;
 
+        public string ImageName { get
+            {
+                if (Value == Number.Joker)
+                    return IsRed
+                        ? $"R_{(int)Value}"
+                        : $"B_{(int)Value}";
+                return $"{House.ToString()[0]}_{(int)Value}";
+            }
+        }
+
         /// <summary>
         /// Gets the number of cards a player has to pickup if attacked by this one
         /// </summary>

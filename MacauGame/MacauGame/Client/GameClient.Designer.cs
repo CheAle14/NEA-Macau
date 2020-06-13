@@ -28,88 +28,244 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.btnHandLeft = new System.Windows.Forms.Button();
-            this.btnHandRight = new System.Windows.Forms.Button();
-            this.panelHand = new System.Windows.Forms.Panel();
+            this.pbPlayerA = new System.Windows.Forms.PictureBox();
+            this.pbPlayerD = new System.Windows.Forms.PictureBox();
+            this.lblPlayerAName = new System.Windows.Forms.Label();
+            this.lblPlayerDName = new System.Windows.Forms.Label();
+            this.lblPlayerBName = new System.Windows.Forms.Label();
+            this.pbPlayerB = new System.Windows.Forms.PictureBox();
+            this.lblPlayerCName = new System.Windows.Forms.Label();
+            this.pbPlayerC = new System.Windows.Forms.PictureBox();
+            this.lblPlayerEName = new System.Windows.Forms.Label();
+            this.pbPlayerE = new System.Windows.Forms.PictureBox();
             this.panelTable = new System.Windows.Forms.Panel();
-            this.panelPlace = new System.Windows.Forms.Panel();
-            this.pbPickupDeck = new System.Windows.Forms.PictureBox();
-            ((System.ComponentModel.ISupportInitialize)(this.pbPickupDeck)).BeginInit();
+            this.label1 = new System.Windows.Forms.Label();
+            this.lblTableEffect = new System.Windows.Forms.Label();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.panelHand = new System.Windows.Forms.Panel();
+            this.btnPlace = new System.Windows.Forms.Button();
+            this.btnAltAction = new System.Windows.Forms.Button();
+            ((System.ComponentModel.ISupportInitialize)(this.pbPlayerA)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbPlayerD)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbPlayerB)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbPlayerC)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbPlayerE)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
-            // btnHandLeft
+            // pbPlayerA
             // 
-            this.btnHandLeft.Location = new System.Drawing.Point(12, 574);
-            this.btnHandLeft.Name = "btnHandLeft";
-            this.btnHandLeft.Size = new System.Drawing.Size(75, 75);
-            this.btnHandLeft.TabIndex = 1;
-            this.btnHandLeft.Text = "button1";
-            this.btnHandLeft.UseVisualStyleBackColor = true;
+            this.pbPlayerA.Image = global::MacauGame.Properties.Resources.BACK;
+            this.pbPlayerA.Location = new System.Drawing.Point(353, 49);
+            this.pbPlayerA.Name = "pbPlayerA";
+            this.pbPlayerA.Size = new System.Drawing.Size(180, 270);
+            this.pbPlayerA.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pbPlayerA.TabIndex = 0;
+            this.pbPlayerA.TabStop = false;
+            this.pbPlayerA.Click += new System.EventHandler(this.pbPlayerA_Click);
             // 
-            // btnHandRight
+            // pbPlayerD
             // 
-            this.btnHandRight.Location = new System.Drawing.Point(1306, 574);
-            this.btnHandRight.Name = "btnHandRight";
-            this.btnHandRight.Size = new System.Drawing.Size(75, 75);
-            this.btnHandRight.TabIndex = 2;
-            this.btnHandRight.Text = "button2";
-            this.btnHandRight.UseVisualStyleBackColor = true;
+            this.pbPlayerD.Image = global::MacauGame.Properties.Resources.BACK;
+            this.pbPlayerD.Location = new System.Drawing.Point(12, 358);
+            this.pbPlayerD.Name = "pbPlayerD";
+            this.pbPlayerD.Size = new System.Drawing.Size(270, 180);
+            this.pbPlayerD.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pbPlayerD.TabIndex = 1;
+            this.pbPlayerD.TabStop = false;
             // 
-            // panelHand
+            // lblPlayerAName
             // 
-            this.panelHand.Location = new System.Drawing.Point(93, 491);
-            this.panelHand.Name = "panelHand";
-            this.panelHand.Size = new System.Drawing.Size(1207, 158);
-            this.panelHand.TabIndex = 3;
+            this.lblPlayerAName.Location = new System.Drawing.Point(350, 9);
+            this.lblPlayerAName.Name = "lblPlayerAName";
+            this.lblPlayerAName.Size = new System.Drawing.Size(183, 37);
+            this.lblPlayerAName.TabIndex = 2;
+            this.lblPlayerAName.Text = "Player A";
+            this.lblPlayerAName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // lblPlayerDName
+            // 
+            this.lblPlayerDName.Location = new System.Drawing.Point(12, 318);
+            this.lblPlayerDName.Name = "lblPlayerDName";
+            this.lblPlayerDName.Size = new System.Drawing.Size(270, 37);
+            this.lblPlayerDName.TabIndex = 3;
+            this.lblPlayerDName.Text = "Player D";
+            this.lblPlayerDName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // lblPlayerBName
+            // 
+            this.lblPlayerBName.Location = new System.Drawing.Point(600, 9);
+            this.lblPlayerBName.Name = "lblPlayerBName";
+            this.lblPlayerBName.Size = new System.Drawing.Size(183, 37);
+            this.lblPlayerBName.TabIndex = 5;
+            this.lblPlayerBName.Text = "Player B";
+            this.lblPlayerBName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // pbPlayerB
+            // 
+            this.pbPlayerB.Image = global::MacauGame.Properties.Resources.BACK;
+            this.pbPlayerB.Location = new System.Drawing.Point(603, 49);
+            this.pbPlayerB.Name = "pbPlayerB";
+            this.pbPlayerB.Size = new System.Drawing.Size(180, 270);
+            this.pbPlayerB.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pbPlayerB.TabIndex = 4;
+            this.pbPlayerB.TabStop = false;
+            this.pbPlayerB.Click += new System.EventHandler(this.pbPlayerB_Click);
+            // 
+            // lblPlayerCName
+            // 
+            this.lblPlayerCName.Location = new System.Drawing.Point(850, 9);
+            this.lblPlayerCName.Name = "lblPlayerCName";
+            this.lblPlayerCName.Size = new System.Drawing.Size(183, 37);
+            this.lblPlayerCName.TabIndex = 7;
+            this.lblPlayerCName.Text = "Player C";
+            this.lblPlayerCName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // pbPlayerC
+            // 
+            this.pbPlayerC.Image = global::MacauGame.Properties.Resources.BACK;
+            this.pbPlayerC.Location = new System.Drawing.Point(853, 49);
+            this.pbPlayerC.Name = "pbPlayerC";
+            this.pbPlayerC.Size = new System.Drawing.Size(180, 270);
+            this.pbPlayerC.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pbPlayerC.TabIndex = 6;
+            this.pbPlayerC.TabStop = false;
+            // 
+            // lblPlayerEName
+            // 
+            this.lblPlayerEName.Location = new System.Drawing.Point(1111, 318);
+            this.lblPlayerEName.Name = "lblPlayerEName";
+            this.lblPlayerEName.Size = new System.Drawing.Size(270, 37);
+            this.lblPlayerEName.TabIndex = 9;
+            this.lblPlayerEName.Text = "Player E";
+            this.lblPlayerEName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // pbPlayerE
+            // 
+            this.pbPlayerE.Image = global::MacauGame.Properties.Resources.BACK;
+            this.pbPlayerE.Location = new System.Drawing.Point(1111, 358);
+            this.pbPlayerE.Name = "pbPlayerE";
+            this.pbPlayerE.Size = new System.Drawing.Size(270, 180);
+            this.pbPlayerE.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pbPlayerE.TabIndex = 8;
+            this.pbPlayerE.TabStop = false;
+            this.pbPlayerE.Click += new System.EventHandler(this.pictureBox1_Click);
             // 
             // panelTable
             // 
-            this.panelTable.Location = new System.Drawing.Point(12, 225);
+            this.panelTable.Location = new System.Drawing.Point(288, 375);
             this.panelTable.Name = "panelTable";
-            this.panelTable.Size = new System.Drawing.Size(496, 260);
-            this.panelTable.TabIndex = 4;
+            this.panelTable.Size = new System.Drawing.Size(817, 211);
+            this.panelTable.TabIndex = 10;
             // 
-            // panelPlace
+            // label1
             // 
-            this.panelPlace.Location = new System.Drawing.Point(514, 225);
-            this.panelPlace.Name = "panelPlace";
-            this.panelPlace.Size = new System.Drawing.Size(496, 260);
-            this.panelPlace.TabIndex = 5;
+            this.label1.Location = new System.Drawing.Point(850, 335);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(183, 37);
+            this.label1.TabIndex = 11;
+            this.label1.Text = "Placed cards\r\nTop on right";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
-            // pbPickupDeck
+            // lblTableEffect
             // 
-            this.pbPickupDeck.Image = global::MacauGame.Properties.Resources.C_10;
-            this.pbPickupDeck.Location = new System.Drawing.Point(1016, 225);
-            this.pbPickupDeck.Name = "pbPickupDeck";
-            this.pbPickupDeck.Size = new System.Drawing.Size(173, 260);
-            this.pbPickupDeck.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pbPickupDeck.TabIndex = 6;
-            this.pbPickupDeck.TabStop = false;
+            this.lblTableEffect.Location = new System.Drawing.Point(350, 335);
+            this.lblTableEffect.Name = "lblTableEffect";
+            this.lblTableEffect.Size = new System.Drawing.Size(220, 37);
+            this.lblTableEffect.TabIndex = 12;
+            this.lblTableEffect.Text = "Effect:\r\nPickup 2 cards";
+            this.lblTableEffect.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Location = new System.Drawing.Point(158, 49);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(135, 203);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox1.TabIndex = 13;
+            this.pictureBox1.TabStop = false;
+            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click_1);
+            // 
+            // panelHand
+            // 
+            this.panelHand.AutoScroll = true;
+            this.panelHand.Location = new System.Drawing.Point(12, 592);
+            this.panelHand.Name = "panelHand";
+            this.panelHand.Size = new System.Drawing.Size(1140, 270);
+            this.panelHand.TabIndex = 11;
+            // 
+            // btnPlace
+            // 
+            this.btnPlace.Location = new System.Drawing.Point(1158, 592);
+            this.btnPlace.Name = "btnPlace";
+            this.btnPlace.Size = new System.Drawing.Size(223, 61);
+            this.btnPlace.TabIndex = 14;
+            this.btnPlace.Text = "button1";
+            this.btnPlace.UseVisualStyleBackColor = true;
+            // 
+            // btnAltAction
+            // 
+            this.btnAltAction.Location = new System.Drawing.Point(1158, 659);
+            this.btnAltAction.Name = "btnAltAction";
+            this.btnAltAction.Size = new System.Drawing.Size(223, 61);
+            this.btnAltAction.TabIndex = 15;
+            this.btnAltAction.Text = "button1";
+            this.btnAltAction.UseVisualStyleBackColor = true;
             // 
             // GameClient
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1393, 661);
-            this.Controls.Add(this.pbPickupDeck);
-            this.Controls.Add(this.panelPlace);
-            this.Controls.Add(this.panelTable);
+            this.ClientSize = new System.Drawing.Size(1393, 844);
+            this.Controls.Add(this.btnAltAction);
+            this.Controls.Add(this.btnPlace);
             this.Controls.Add(this.panelHand);
-            this.Controls.Add(this.btnHandRight);
-            this.Controls.Add(this.btnHandLeft);
+            this.Controls.Add(this.pictureBox1);
+            this.Controls.Add(this.lblTableEffect);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.panelTable);
+            this.Controls.Add(this.lblPlayerEName);
+            this.Controls.Add(this.pbPlayerE);
+            this.Controls.Add(this.lblPlayerCName);
+            this.Controls.Add(this.pbPlayerC);
+            this.Controls.Add(this.lblPlayerBName);
+            this.Controls.Add(this.pbPlayerB);
+            this.Controls.Add(this.lblPlayerDName);
+            this.Controls.Add(this.lblPlayerAName);
+            this.Controls.Add(this.pbPlayerD);
+            this.Controls.Add(this.pbPlayerA);
             this.Name = "GameClient";
             this.Text = "GameClient";
-            ((System.ComponentModel.ISupportInitialize)(this.pbPickupDeck)).EndInit();
+            this.Load += new System.EventHandler(this.GameClient_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.pbPlayerA)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbPlayerD)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbPlayerB)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbPlayerC)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbPlayerE)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
 
         }
 
         #endregion
-        private System.Windows.Forms.Button btnHandLeft;
-        private System.Windows.Forms.Button btnHandRight;
-        private System.Windows.Forms.Panel panelHand;
+
+        private System.Windows.Forms.PictureBox pbPlayerA;
+        private System.Windows.Forms.PictureBox pbPlayerD;
+        private System.Windows.Forms.Label lblPlayerAName;
+        private System.Windows.Forms.Label lblPlayerDName;
+        private System.Windows.Forms.Label lblPlayerBName;
+        private System.Windows.Forms.PictureBox pbPlayerB;
+        private System.Windows.Forms.Label lblPlayerCName;
+        private System.Windows.Forms.PictureBox pbPlayerC;
+        private System.Windows.Forms.Label lblPlayerEName;
+        private System.Windows.Forms.PictureBox pbPlayerE;
         private System.Windows.Forms.Panel panelTable;
-        private System.Windows.Forms.Panel panelPlace;
-        private System.Windows.Forms.PictureBox pbPickupDeck;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label lblTableEffect;
+        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.Panel panelHand;
+        private System.Windows.Forms.Button btnPlace;
+        private System.Windows.Forms.Button btnAltAction;
     }
 }

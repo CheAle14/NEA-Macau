@@ -60,5 +60,14 @@ namespace MacauGame
                 e.Cancel = true;
             }
         }
+
+        private void Menu_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if(e.KeyChar == 't')
+            {
+                var theme = new ThemeClient();
+                theme.ShowDialog();
+            }
+        }
     }
 }

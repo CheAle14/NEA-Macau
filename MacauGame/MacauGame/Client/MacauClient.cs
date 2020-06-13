@@ -25,6 +25,7 @@ namespace MacauGame.Client
         private Dictionary<int, AwaitedPacket> waitingForResponse = new Dictionary<int, AwaitedPacket>();
 
         WebSocket WS_Client { get; set; }
+        public GameClient Game { get; set; }
 
         private void MacauClient_Load(object sender, EventArgs e)
         {
@@ -129,6 +130,30 @@ namespace MacauGame.Client
         {
             Log.Info("Opened WS");
             MessageBox.Show($"Opened: {this.InvokeRequired}");
+            Game = new GameClient(this);
+            Game.FormClosing += Game_FormClosing;
+            Game.Show();
+            Send(new Packet(PacketId.GetGameInfo, JValue.CreateNull()));
+            this.Hide();
+        }
+
+        private void Game_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            try
+            {
+                Send(new Packet(PacketId.Error, JValue.FromObject($"Game form closed {e.CloseReason}")));
+            } catch (Exception ex)
+            {
+                Log.Error("GameClosing", ex);
+            }
+            try
+            {
+                WS_Client.Close(CloseStatusCode.Abnormal);
+            } catch (Exception ex)
+            {
+                Log.Error("GameClosing", ex);
+            }
+            this.Show();
         }
 
         private void MacauClient_FormClosing(object sender, FormClosingEventArgs e)
@@ -176,6 +201,13 @@ namespace MacauGame.Client
 
         void handlePacket(Packet packet)
         {
+            if(Game == null)
+            {
+                Log.Error("HandlePacket", "Cannot handle packet since Game form is null.");
+            } else
+            {
+                Game.HandleGamePacket(packet);
+            }
         }
 
         Semaphore LOCK = new Semaphore(1, 1);

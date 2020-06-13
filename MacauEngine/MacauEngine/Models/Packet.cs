@@ -69,6 +69,7 @@ namespace MacauEngine.Models
 
         #region Client -> Server Codes
         GetPlayerInfo,
+        GetGameInfo,
 
         PlaceCards,
         SkipOrGiveupTurn,
@@ -76,14 +77,15 @@ namespace MacauEngine.Models
         IndicateSkipsTurn,
         IndicatePickupCard,
 
+        VoteStartGame,
         #endregion
 
         #region Server -> Client Codes
         ProvidePlayerInfo,
+        ProvideGameInfo,
         BulkPickupCards,
         WaitingOnYou,
         NewCardsPlaced,
-        VoteStartGame,
         #endregion
     }
 }
