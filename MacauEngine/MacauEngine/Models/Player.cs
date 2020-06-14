@@ -48,7 +48,8 @@ namespace MacauEngine.Models
             Id = json["id"].ToObject<string>();
             Name = json["name"].ToObject<string>();
             Hand = json["hand"].ToObject<List<Card>>();
-            MissingGoes = json["miss"].ToObject<int>();
+            if (json.TryGetValue("miss", out var tkn))
+                MissingGoes = tkn.ToObject<int>();
         }
 
         public override bool Equals(object obj)

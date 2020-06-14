@@ -1,4 +1,5 @@
 ﻿using MacauEngine.Models;
+using MLAPI.Classes.Client;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,7 @@ namespace MacauGame.Client
 {
     public partial class MacauClient : Form
     {
+        public string SELF_HWID { get; private set; }
         public MacauClient()
         {
             InitializeComponent();
@@ -29,17 +31,32 @@ namespace MacauGame.Client
 
         private void MacauClient_Load(object sender, EventArgs e)
         {
+            SELF_HWID = UHWID.UHWIDEngine.AdvancedUid;
             this.Text = "Fetching servers...";
+            txtName.Text = Program.Configuration.Name;
+            txtIP.Text = Program.Configuration.IP;
             new Thread(updateML).Start();
         }
 
         void updateML()
         {
-            var servers = MLAPI.MasterList.GetServers(Program.GAME_TYPE, false).Result;
-            this.Invoke(new Action(() =>
+            List<ServerInfo> servers;
+            try
             {
-                foundServers(servers);
-            }));
+                servers = MLAPI.MasterList.GetServers(Program.GAME_TYPE, false).Result;
+                this.Invoke(new Action(() =>
+                {
+                    foundServers(servers);
+                }));
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GetML", ex);
+                this.Invoke(new Action(() =>
+                {
+                    this.Name = "Could not fetch masterlist";
+                }));
+            }
         }
 
         void foundServers(List<MLAPI.Classes.Client.ServerInfo> servers)
@@ -92,8 +109,13 @@ namespace MacauGame.Client
                 MessageBox.Show("Could not parse given IP as an actual IP address");
                 return;
             }
+#if DEBUG
+            SELF_HWID = UHWID.UHWIDEngine.AdvancedUid + txtName.Text;
+#endif
+            Program.Configuration.Name = txtName.Text;
+            Program.Configuration.IP = txtIP.Text;
             WS_Client = new WebSocket($"ws://{ipad}:{Server.MacauServer.PORT}/" +
-                $"?name={Uri.EscapeDataString(txtName.Text)}&hwid={UHWID.UHWIDEngine.AdvancedUid}");
+                $"?name={Uri.EscapeDataString(txtName.Text)}&hwid={SELF_HWID}");
             Log.Info($"Connecting: {WS_Client.Url}");
             WS_Client.OnOpen += WS_Client_OnOpen;
             WS_Client.OnMessage += WS_Client_OnMessage;
@@ -129,12 +151,16 @@ namespace MacauGame.Client
         private void WS_Client_OnOpen(object sender, EventArgs e)
         {
             Log.Info("Opened WS");
-            MessageBox.Show($"Opened: {this.InvokeRequired}");
-            Game = new GameClient(this);
-            Game.FormClosing += Game_FormClosing;
-            Game.Show();
-            Send(new Packet(PacketId.GetGameInfo, JValue.CreateNull()));
-            this.Hide();
+            this.Invoke(new Action(() =>
+            {
+                Game = new GameClient(this);
+                Game.FormClosing += Game_FormClosing;
+                Game.Visible = true;
+                Game.Show();
+                MacauGame.Menu.Instance.Hide();
+                this.Hide();
+                Send(new Packet(PacketId.GetGameInfo, JValue.CreateNull()));
+            }));
         }
 
         private void Game_FormClosing(object sender, FormClosingEventArgs e)
@@ -189,6 +215,29 @@ namespace MacauGame.Client
             awaiter.Holder.Wait(timeout);
             return awaiter.Recieved;
         }
+        public void GetResponse(Packet packet, Action<Packet> callback, int timeout = 30000)
+        {
+            var awaiter = new AsyncAwaitedPacket()
+            {
+                Sent = packet,
+                Holder = new ManualResetEventSlim(),
+                Callback = callback,
+                Timeout = timeout
+            };
+            waitingForResponse[packet.Sequence] = awaiter;
+            var th = new Thread(responseCallbackThread);
+            th.Start(awaiter);
+            Send(packet);
+        }
+
+        private void responseCallbackThread(object o)
+        {
+            if(o is AsyncAwaitedPacket awaiter)
+            {
+                awaiter.Holder.Wait(awaiter.Timeout + 250); // account for thread starting
+                awaiter.Callback.Invoke(awaiter.Recieved);
+            }
+        }
 
         Player GetPlayer(string id)
         {
@@ -206,19 +255,24 @@ namespace MacauGame.Client
                 Log.Error("HandlePacket", "Cannot handle packet since Game form is null.");
             } else
             {
-                Game.HandleGamePacket(packet);
+                Game.Invoke(new Action(() =>
+                {
+                    Game.HandleGamePacket(packet);
+                }));
             }
         }
 
         Semaphore LOCK = new Semaphore(1, 1);
         void packetThread(object o)
         {
-            if (!(o is Packet p))
+            if (!(o is Packet packet))
+                return;
+            if (packet == null)
                 return;
             LOCK.WaitOne();
             try
             {
-                handlePacket(p);
+                handlePacket(packet);
             } finally
             {
                 LOCK.Release();

@@ -65,11 +65,19 @@ namespace MacauGame.Server
         public Table Table { get; set; }
         public WebSocketServer WsServer { get; set; }
         public const int PORT = 26007;
+        public bool GameStarted { get; set; }
 
         public void StartGame()
         {
+            if (GameStarted)
+                return;
+            GameStarted = true;
             Table = new Table();
-            OrderedPlayers = Players.Select(x => x.Value).OrderBy(x => x.Player.Name).ToList();
+            var topCard = Table.DrawCard();
+            if (topCard.Value == MacauEngine.Models.Enums.Number.Ace)
+                topCard.AceSuit = topCard.House;
+            Table.ShowingCards.Add(topCard);
+            OrderedPlayers = Players.Select(x => x.Value).OrderBy(x => x.Player.Order).ToList();
             Log.Info($"Starting game with {OrderedPlayers.Count}; table: {Table.ShowingCards[0]}");
             CurrentWaitingOn = OrderedPlayers[0];
             var placedPacket = new Packet(PacketId.NewCardsPlaced, new JArray() { Table.ShowingCards[0].ToJson() });
@@ -84,7 +92,7 @@ namespace MacauGame.Server
                 orderArray.Add(player.Player.ToJson());
             }
             var orderObject = new JObject();
-            orderObject["players"] = orderObject;
+            orderObject["players"] = orderArray;
             var orderPacket = new Packet(PacketId.ProvideGameInfo, orderObject);
             foreach (var player in OrderedPlayers)
             {
@@ -120,8 +128,6 @@ namespace MacauGame.Server
                     next = 0;
 
                 var possible = OrderedPlayers[next];
-                if (possible.Id == current.Id)
-                    return null;
                 if (predicate(possible.Player))
                     return possible;
                 next += direction;
@@ -180,16 +186,24 @@ namespace MacauGame.Server
         void masterlist()
         {
             Log.Info("Reaching out to ML...");
-            var rest = MasterList.GetOrCreate(x =>
+            try
             {
-                x.Game = Program.GAME_TYPE;
-                x.InternalIP = IPAddress.Parse("192.168.1.2");
-                x.Name = "Test Server 4";
-                x.Port = PORT;
-                x.IsPortForward = true;
-            }).Result;
-            rest.PingOnline().GetAwaiter().GetResult();
-            Log.Info("Server on masterlist");
+                var rest = MasterList.GetOrCreate(x =>
+                {
+                    x.Game = Program.GAME_TYPE;
+                    x.InternalIP = IPAddress.Parse("192.168.1.2");
+                    x.Name = "Test Server 4";
+                    x.Port = PORT;
+                    x.IsPortForward = true;
+                }).Result;
+                rest.PingOnline().GetAwaiter().GetResult();
+                Log.Info("Server on masterlist");
+            }
+            catch (Exception ex)
+            {
+                Log.Error("MasterlistStart", ex);
+                Log.Info("Server not hosted on ML.");
+            }
         }
 
         private void MacauServer_FormClosing(object sender, FormClosingEventArgs e)

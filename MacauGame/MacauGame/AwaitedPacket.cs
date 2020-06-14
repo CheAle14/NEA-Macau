@@ -14,4 +14,9 @@ namespace MacauGame
         public Packet Recieved { get; set; }
         public ManualResetEventSlim Holder { get; set; } 
     }
+    public class AsyncAwaitedPacket : AwaitedPacket
+    {
+        public Action<Packet> Callback { get; set; }
+        public int Timeout { get; set; }
+    }
 }

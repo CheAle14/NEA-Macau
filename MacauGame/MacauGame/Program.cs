@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Newtonsoft.Json;
 using Squirrel;
 
 namespace MacauGame
@@ -16,6 +17,37 @@ namespace MacauGame
         public static string AppDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), AppDataFolderName);
         public static string GAME_TYPE => AppDataFolderName.ToLower();
         public static Random RND { get; private set; }
+
+        #region Config & Saved Preferences
+        public static Options Configuration { get; set; }
+
+        public static void SaveConfig()
+        {
+            var json = JsonConvert.SerializeObject(Configuration);
+            if (!Directory.Exists(AppDataPath))
+                Directory.CreateDirectory(AppDataPath);
+            var path = Path.Combine(AppDataPath, "config.json");
+            File.WriteAllText(path, json);
+        }
+
+        public static void LoadConfig()
+        {
+            Configuration = new Options();
+            if (!Directory.Exists(AppDataPath))
+                Directory.CreateDirectory(AppDataPath);
+            var path = Path.Combine(AppDataPath, "config.json");
+            try
+            {
+                var json = File.ReadAllText(path);
+                var obj = JsonConvert.DeserializeObject<Options>(json);
+                Configuration = obj;
+            } catch (Exception ex)
+            {
+                Log.Error("Config", ex);
+            }
+        }
+        #endregion
+
         static void Main(string[] args)
         {
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
@@ -33,7 +65,15 @@ namespace MacauGame
             Main().GetAwaiter().GetResult();
             Log.Info("Other things2");
 #endif
-            Application.Run(new MacauGame.Client.GameClient(null));
+            LoadConfig();
+            var menu = new Menu();
+            menu.FormClosing += Menu_FormClosing;
+            Application.Run(menu);
+        }
+
+        private static void Menu_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            SaveConfig();
         }
 
         static async Task Main()
@@ -57,6 +97,7 @@ namespace MacauGame
             Log.Error($"UnhandledEx", (Exception)e.ExceptionObject);
             if (e.IsTerminating)
                 Log.Error("UnhandledEx", "We must now exit");
+            MessageBox.Show(((Exception)e.ExceptionObject).ToString());
         }
     }
 }

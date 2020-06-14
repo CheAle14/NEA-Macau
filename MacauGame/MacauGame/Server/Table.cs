@@ -1,5 +1,6 @@
 ﻿using MacauEngine.Models;
 using MacauEngine.Models.Enums;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace MacauGame.Server
     {
         public List<Card> Deck { get; set; }
         public List<Card> ShowingCards { get; set; }
-
+        
         public void PlaceCard(Card c)
         {
             ShowingCards.Add(c);
@@ -25,22 +26,42 @@ namespace MacauGame.Server
             }
         }
 
-        public Table()
+        List<Card> getOrderedDeck()
         {
-            Deck = new List<Card>();
-            ShowingCards = new List<Card>();
             var nonShuffled = new List<Card>();
-            foreach(Suit house in Enum.GetValues(typeof(Suit)))
+            foreach (Suit house in Enum.GetValues(typeof(Suit)))
             {
                 if (house == Suit.None)
                     continue;
-                foreach(Number value in Enum.GetValues(typeof(Number)))
+                foreach (Number value in Enum.GetValues(typeof(Number)))
                 {
                     if (value == Number.None)
+                        continue;
+                    if (value == Number.Joker && house == Suit.Club)
+                        continue;
+                    if (value == Number.Joker && house == Suit.Diamond)
                         continue;
                     nonShuffled.Add(new Card(house, value));
                 }
             }
+            return nonShuffled;
+        }
+
+        public Table(int numDecks = 1)
+        {
+            Deck = new List<Card>();
+            ShowingCards = new List<Card>();
+            List<Card> nonShuffled;
+            if(numDecks == 1)
+            {
+                nonShuffled = getOrderedDeck();
+            } else
+            {
+                nonShuffled = new List<Card>();
+                for (int i = 0; i < numDecks; i++)
+                    nonShuffled.AddRange(getOrderedDeck());
+            }
+
             while(nonShuffled.Count > 0)
             {
                 int index = Program.RND.Next(0, nonShuffled.Count);
@@ -48,7 +69,6 @@ namespace MacauGame.Server
                 nonShuffled.RemoveAt(index);
                 Deck.Add(card);
             }
-            ShowingCards.Add(DrawCard());
         }
 
         void FlipDeck()

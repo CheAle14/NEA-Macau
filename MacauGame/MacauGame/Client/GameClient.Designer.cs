@@ -39,6 +39,7 @@
             this.lblPlayerEName = new System.Windows.Forms.Label();
             this.pbPlayerE = new System.Windows.Forms.PictureBox();
             this.panelTable = new System.Windows.Forms.Panel();
+            this.btnVoteStart = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.lblTableEffect = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
@@ -50,6 +51,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pbPlayerB)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbPlayerC)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbPlayerE)).BeginInit();
+            this.panelTable.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -149,14 +151,24 @@
             this.pbPlayerE.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pbPlayerE.TabIndex = 8;
             this.pbPlayerE.TabStop = false;
-            this.pbPlayerE.Click += new System.EventHandler(this.pictureBox1_Click);
             // 
             // panelTable
             // 
+            this.panelTable.Controls.Add(this.btnVoteStart);
             this.panelTable.Location = new System.Drawing.Point(288, 375);
             this.panelTable.Name = "panelTable";
             this.panelTable.Size = new System.Drawing.Size(817, 211);
             this.panelTable.TabIndex = 10;
+            // 
+            // btnVoteStart
+            // 
+            this.btnVoteStart.Location = new System.Drawing.Point(65, 12);
+            this.btnVoteStart.Name = "btnVoteStart";
+            this.btnVoteStart.Size = new System.Drawing.Size(680, 151);
+            this.btnVoteStart.TabIndex = 16;
+            this.btnVoteStart.Text = "Vote to Start Game";
+            this.btnVoteStart.UseVisualStyleBackColor = true;
+            this.btnVoteStart.Click += new System.EventHandler(this.btnVoteStart_Click);
             // 
             // label1
             // 
@@ -166,7 +178,6 @@
             this.label1.TabIndex = 11;
             this.label1.Text = "Placed cards\r\nTop on right";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // lblTableEffect
             // 
@@ -185,7 +196,6 @@
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox1.TabIndex = 13;
             this.pictureBox1.TabStop = false;
-            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click_1);
             // 
             // panelHand
             // 
@@ -201,8 +211,9 @@
             this.btnPlace.Name = "btnPlace";
             this.btnPlace.Size = new System.Drawing.Size(223, 61);
             this.btnPlace.TabIndex = 14;
-            this.btnPlace.Text = "button1";
+            this.btnPlace.Text = "Place";
             this.btnPlace.UseVisualStyleBackColor = true;
+            this.btnPlace.Click += new System.EventHandler(this.btnPlace_Click);
             // 
             // btnAltAction
             // 
@@ -210,8 +221,9 @@
             this.btnAltAction.Name = "btnAltAction";
             this.btnAltAction.Size = new System.Drawing.Size(223, 61);
             this.btnAltAction.TabIndex = 15;
-            this.btnAltAction.Text = "button1";
+            this.btnAltAction.Text = "[Skip] [Pickup]";
             this.btnAltAction.UseVisualStyleBackColor = true;
+            this.btnAltAction.Click += new System.EventHandler(this.btnAltAction_Click);
             // 
             // GameClient
             // 
@@ -243,6 +255,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pbPlayerB)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbPlayerC)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbPlayerE)).EndInit();
+            this.panelTable.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
 
@@ -267,5 +280,6 @@
         private System.Windows.Forms.Panel panelHand;
         private System.Windows.Forms.Button btnPlace;
         private System.Windows.Forms.Button btnAltAction;
+        private System.Windows.Forms.Button btnVoteStart;
     }
 }

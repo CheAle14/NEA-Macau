@@ -7,7 +7,9 @@ namespace MacauEngine.Models
         public Packet(PacketId id, JToken value, int sequence)
         {
             if(sequence == 0)
-                sequence = new JTokenEqualityComparer().GetHashCode(value);
+                sequence = 
+                    new JTokenEqualityComparer().GetHashCode(value)
+                    * id.GetHashCode();
             Id = id;
             Content = value;
             Sequence = sequence;
@@ -83,9 +85,11 @@ namespace MacauEngine.Models
         #region Server -> Client Codes
         ProvidePlayerInfo,
         ProvideGameInfo,
+        ClearActive,
         BulkPickupCards,
         WaitingOnYou,
         NewCardsPlaced,
+        NewPlayerJoined,
         #endregion
     }
 }

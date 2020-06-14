@@ -61,7 +61,7 @@
             this.Controls.Add(this.btnServer);
             this.KeyPreview = true;
             this.Name = "Menu";
-            this.Text = "Menu";
+            this.Text = "Macau Menu";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Menu_FormClosing);
             this.Load += new System.EventHandler(this.Menu_Load);
             this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Menu_KeyPress);

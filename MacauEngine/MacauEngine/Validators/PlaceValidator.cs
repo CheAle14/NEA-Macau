@@ -111,11 +111,10 @@ namespace MacauEngine.Validators
                 {
                     return canPlaceHouse(_bottom.AceSuit.Value)
                         ? ValidationResult.FromSuccess()
-                        : ValidationResult.FromError($"{_bottom} changes suit, where {_top} cannot be placed on that suit");
+                        : ValidationResult.FromError($"{_bottom} changes suit to {_bottom.AceSuit.Value}, where {_top} cannot be placed on that suit");
                 }
                 // ace is being placed in bulk so doesnt have a set suit, which means the player *probably* wants the top's suit to be selected.
-                // hence:
-                _bottom.AceSuit = _top.House;
+                // hence, we implicitely allow it:
                 return ValidationResult.FromSuccess();
             }
             return (_bottom.Value == _top.Value || _bottom.House == _top.House)

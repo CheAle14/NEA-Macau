@@ -76,6 +76,7 @@ namespace MacauGame.Server
 
         public void Send(Packet packet)
         {
+            Log.Trace("Send: " + packet.ToString());
             Send(packet.ToString());
         }
 
@@ -151,8 +152,6 @@ namespace MacauGame.Server
                         return;
                     }
                 }
-
-
                 var validator = new PlaceValidator(requested, Server.Table.ShowingCards.Last());
                 var result = validator.Validate();
                 if(!result.IsSuccess)
@@ -176,17 +175,20 @@ namespace MacauGame.Server
                             Send(packet.Reply(PacketId.Error, JValue.FromObject($"You do not have the {placing}")));
                             return;
                         }
-                        found.Add(same);
+                        found.Add(placing);
                     }
                     foreach (var x in found) Player.Hand.Remove(x);
-
-                    foreach (var card in requested)
+                    foreach (var card in found)
                     {
+                        if (card.IsSpecialCard)
+                            card.IsActive = true;
+                        if (card.Value == MacauEngine.Models.Enums.Number.Seven)
+                            Server.Table.ShowingCards.ForEach(y => y.IsActive = false);
                         Server.Table.PlaceCard(card);
                     }
                     Send(packet.Reply(PacketId.Success, JValue.CreateNull()));
                     var jarray = new JArray();
-                    foreach (var x in requested)
+                    foreach (var x in found)
                         jarray.Add(x.ToJson());
                     var bulk = new Packet(PacketId.NewCardsPlaced, jarray);
                     foreach (var player in Server.OrderedPlayers)
@@ -203,7 +205,7 @@ namespace MacauGame.Server
                 });
             } else if (packet.Id == PacketId.VoteStartGame)
             {
-                if(Server.OrderedPlayers != null)
+                if(Server.GameStarted)
                 {
                     Send(packet.Reply(PacketId.Error, JValue.FromObject("Game has already been started")));
                     return;
@@ -226,6 +228,7 @@ namespace MacauGame.Server
                 if(activeFours > 0)
                 {
                     Player.MissingGoes += activeFours;
+                    Server.Table.ShowingCards.ForEach(x => x.IsActive = false);
                 } else if(Player.MissingGoes <= 0)
                 {
                     Send(packet.Reply(PacketId.Error, JValue.FromObject("You are not missing any turns to skip - perhaps you meant to pickup?")));
@@ -241,7 +244,11 @@ namespace MacauGame.Server
                     msg += $"they have {Player.MissingGoes} more goes to miss";
                 var pong = new Packet(PacketId.Message, JValue.FromObject(msg));
                 foreach (var player in Server.OrderedPlayers)
+                {
                     player.Send(pong.ToString());
+                    player.Send(new Packet(PacketId.ClearActive, JValue.CreateNull()));
+                }
+                Server.MoveNextPlayer();
                 Server.CurrentWaitingOn.SendWaitingOn();
             } else if(packet.Id == PacketId.IndicatePickupCard)
             {
@@ -283,8 +290,20 @@ namespace MacauGame.Server
                     pickups--;
                 }
                 Send(packet.Reply(PacketId.BulkPickupCards, pickedUp));
+                foreach(var player in Server.OrderedPlayers)
+                {
+                    player.Send(new Packet(PacketId.ClearActive, JValue.CreateNull()));
+                }
                 Server.MoveNextPlayer();
                 Server.CurrentWaitingOn.SendWaitingOn();
+            } else if (packet.Id == PacketId.GetGameInfo)
+            {
+                var jArray = new JArray();
+                foreach (var player in Server.OrderedPlayers)
+                    jArray.Add(player.Player.ToJson());
+                var jobj = new JObject();
+                jobj["players"] = jArray;
+                Send(new Packet(PacketId.ProvideGameInfo, jobj));
             }
             else
             {
@@ -351,7 +370,20 @@ namespace MacauGame.Server
                     return;
                 }
                 Server.Players[hwid] = this;
+                this.Player.Order = Server.Players.Count;
+                Server.OrderedPlayers = Server.Players.Values.OrderBy(x => x.Player.Order).ToList();
                 Log.Info($"New Player has joined: {Name}, {Id}");
+                var newPlayer = new Packet(PacketId.NewPlayerJoined, this.Player.ToJson());
+                foreach(var p in Server.Players.Values)
+                {
+                    if(p.Player.Id == hwid)
+                    {
+
+                    } else
+                    {
+                        p.Send(newPlayer);
+                    }
+                }
             });
         }
     }
