@@ -78,7 +78,7 @@ namespace MacauGame
 
         static async Task Main()
         {
-            using (var updater = new UpdateManager(@"D:\_GitHub\NEA-Macau\MacauGame\Releases"))
+            using (var updater = await UpdateManager.GitHubUpdateManager("https://github.com/CheAle14/NEA-Macau"))
             {
                 //var updater = await mgr;
                 var update = await updater.UpdateApp();
