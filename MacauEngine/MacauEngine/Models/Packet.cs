@@ -88,6 +88,7 @@ namespace MacauEngine.Models
         ClearActive,
         BulkPickupCards,
         WaitingOnYou,
+        WaitingOn,
         NewCardsPlaced,
         NewPlayerJoined,
         #endregion

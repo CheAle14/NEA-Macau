@@ -117,6 +117,8 @@ namespace MacauEngine.Validators
                 // hence, we implicitely allow it:
                 return ValidationResult.FromSuccess();
             }
+            if (_bottom.Value == Number.Joker && _bottom.IsActive == false)
+                return ValidationResult.FromSuccess();
             return (_bottom.Value == _top.Value || _bottom.House == _top.House)
                 ? ValidationResult.FromSuccess()
                 : ValidationResult.FromError($"{_top} cannot be placed on {_bottom}");

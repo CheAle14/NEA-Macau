@@ -19,6 +19,11 @@ namespace MacauGame.Client
     {
         public Player SelfPlayer { get; set; }
         public Client.MacauClient Client { get; set; }
+
+        public static string WaitingForId { get; set; }
+
+        public bool IsCurrentPlayer => WaitingForId != null && SelfPlayer != null && WaitingForId == SelfPlayer.Id;
+
         Table table = new Table();
         List<Player> Players = new List<Player>();
 
@@ -68,6 +73,21 @@ namespace MacauGame.Client
         public void Send(Packet packet) => Client.Send(packet);
         public void GetResponse(Packet packet, int timeout = 30000) => Client.GetResponse(packet, timeout);
 
+        public void UpdateUI()
+        {
+            if(this.InvokeRequired)
+            {
+                this.Invoke(new Action(() => UpdateUI()));
+                return;
+            }
+            btnPlace.Visible = IsCurrentPlayer;
+            btnAltAction.Visible = IsCurrentPlayer;
+            //panelTable.HorizontalScroll.Maximum = panelTable.Width;
+            //panelTable.AutoScrollPosition = new Point(panelTable.Width - 50, 0);
+            CanInteract = IsCurrentPlayer;
+            DisplayPlayers();
+        }
+
         public void HandleGamePacket(Packet packet)
         {
             if(packet.Id == PacketId.ProvideGameInfo)
@@ -106,9 +126,11 @@ namespace MacauGame.Client
                 {
                     DisplayTableCards();
                 }));
-            } else if (packet.Id == PacketId.WaitingOnYou)
+            } else if (packet.Id == PacketId.WaitingOn)
             {
-                CanInteract = true;
+                var id = packet.Content.ToObject<string>();
+                WaitingForId = id; ;
+                UpdateUI();
             } else if (packet.Id == PacketId.ClearActive)
             {
                 table.ShowingCards.ForEach(x => x.IsActive = false);
@@ -251,7 +273,7 @@ namespace MacauGame.Client
 
         int tblocation = 0;
         private void PanelTable_MouseWheel(object sender, MouseEventArgs e)
-        {
+        {/*
             if(e.Delta < 0)
             {
                 // scroll right
@@ -278,7 +300,7 @@ namespace MacauGame.Client
                     tblocation = 0;
                     panelTable.AutoScrollPosition = new Point(tblocation, 0);
                 }
-            }
+            }*/
         }
 
         public void DisplayTableCards()
@@ -315,7 +337,7 @@ namespace MacauGame.Client
             btnAltAction.Text = effect.StartsWith("Miss")
                 ? "Skip Turn"
                 : "Pickup";
-            panelTable.HorizontalScroll.Maximum = panelTable.Width;
+            //panelTable.HorizontalScroll.Maximum = panelTable.Width;
         }
 
         #endregion
@@ -337,10 +359,11 @@ namespace MacauGame.Client
 #endif
             flip(pbPlayerD);
             flip(pbPlayerE);
-            panelTable.AutoScroll = false;
-            panelTable.MouseWheel += PanelTable_MouseWheel;
-            panelTable.HorizontalScroll.Maximum = panelTable.Width;
-            panelTable.AutoScrollPosition = new Point(0, 0);
+            panelTable.AutoScroll = true;
+            //panelTable.MouseWheel += PanelTable_MouseWheel;
+            //panelTable.HorizontalScroll.Maximum = panelTable.Width;
+            //panelTable.AutoScrollPosition = new Point(0, 0);
+            UpdateUI();
         }
 
         private void pbPlayerA_Click(object sender, EventArgs e)
@@ -383,12 +406,14 @@ namespace MacauGame.Client
                 Label.Visible = true;
                 Image.Visible = true;
                 Label.Text = player.Name;
+                Label.ForeColor = player.Id == GameClient.WaitingForId ? Color.Red : Color.Black;
             }
             public void Reset()
             {
                 Label.Visible = false;
                 Label.ForeColor = Color.Black;
                 Image.Visible = false;
+                Label.ForeColor = Color.Black;
             }
         }
 

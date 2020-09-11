@@ -54,7 +54,7 @@ namespace MacauGame.Server
             }
         }
 
-        static bool lockGlobal(Action someAction)
+        public static bool lockGlobal(Action someAction)
         {
             GLOBAL.WaitOne();
             try
@@ -111,7 +111,7 @@ namespace MacauGame.Server
                 return false;
             Send(ping.Reply(PacketId.Error,
                 JValue.FromObject($"It is not your turn, expecting: {Server.CurrentWaitingOn.Name}")));
-            return false;
+            return true;
         }
 
         public void SendWaitingOn()
@@ -122,6 +122,12 @@ namespace MacauGame.Server
             Send(packet.ToString());
         }
 
+        void brodcastWaitingOn()
+        {
+            var pck = new Packet(PacketId.WaitingOn, JValue.FromObject(Server.CurrentWaitingOn.Id));
+            Sessions.Broadcast(pck.ToString());
+
+        }
         void handlePacket(Packet packet)
         {
             if(packet.Id == PacketId.GetPlayerInfo)
@@ -178,12 +184,18 @@ namespace MacauGame.Server
                         found.Add(placing);
                     }
                     foreach (var x in found) Player.Hand.Remove(x);
+                    bool isActive = false;
                     foreach (var card in found)
                     {
-                        if (card.IsSpecialCard)
-                            card.IsActive = true;
+                        if (card.IsPickupCard || card.Value == MacauEngine.Models.Enums.Number.Four)
+                            card.IsActive = isActive = true; // allows us to save value too.
+                        if (isActive && card.Value == MacauEngine.Models.Enums.Number.King)
+                            card.IsActive = isActive = true;
                         if (card.Value == MacauEngine.Models.Enums.Number.Seven)
+                        {
+                            card.IsActive = isActive = false;
                             Server.Table.ShowingCards.ForEach(y => y.IsActive = false);
+                        }
                         Server.Table.PlaceCard(card);
                     }
                     Send(packet.Reply(PacketId.Success, JValue.CreateNull()));
@@ -201,7 +213,8 @@ namespace MacauGame.Server
                         Log.Info($"{Name} has finished");
                     }
                     Server.MoveNextPlayer();
-                    Server.CurrentWaitingOn.SendWaitingOn();
+                    brodcastWaitingOn();
+                    //Server.CurrentWaitingOn.SendWaitingOn();
                 });
             } else if (packet.Id == PacketId.VoteStartGame)
             {
@@ -249,7 +262,8 @@ namespace MacauGame.Server
                     player.Send(new Packet(PacketId.ClearActive, JValue.CreateNull()));
                 }
                 Server.MoveNextPlayer();
-                Server.CurrentWaitingOn.SendWaitingOn();
+                brodcastWaitingOn();
+                //Server.CurrentWaitingOn.SendWaitingOn();
             } else if(packet.Id == PacketId.IndicatePickupCard)
             {
                 if (ErrorIfNotCurrent(packet))
@@ -264,6 +278,11 @@ namespace MacauGame.Server
                 {
                     Send(packet.Reply(PacketId.Error, JValue.FromObject("You cannot pickup cards when threatened by a Four")));
                     return;
+                }
+                var topCard = Server.Table.ShowingCards.Last();
+                if(topCard.Value == MacauEngine.Models.Enums.Number.King && topCard.IsActive)
+                {
+
                 }
                 int pickups = 0;
                 foreach(var card in Server.Table.ShowingCards)
@@ -295,7 +314,8 @@ namespace MacauGame.Server
                     player.Send(new Packet(PacketId.ClearActive, JValue.CreateNull()));
                 }
                 Server.MoveNextPlayer();
-                Server.CurrentWaitingOn.SendWaitingOn();
+                brodcastWaitingOn();
+                //Server.CurrentWaitingOn.SendWaitingOn();
             } else if (packet.Id == PacketId.GetGameInfo)
             {
                 var jArray = new JArray();
