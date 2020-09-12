@@ -17,13 +17,7 @@ namespace MacauGame.Server
         public void PlaceCard(Card c)
         {
             ShowingCards.Add(c);
-            if (c.IsSpecialCard)
-                c.IsActive = true;
-            if(c.Value == Number.Seven)
-            {
-                foreach (var card in ShowingCards)
-                    card.IsActive = false;
-            }
+            // Whether the card IsActive is handled in ClientBehaviour before this function is called.
         }
 
         List<Card> getOrderedDeck()
@@ -41,7 +35,14 @@ namespace MacauGame.Server
                         continue;
                     if (value == Number.Joker && house == Suit.Diamond)
                         continue;
-                    nonShuffled.Add(new Card(house, value));
+                    if(house == Suit.Club || house == Suit.Spade)
+                    {
+                        nonShuffled.Add(new Card(house, Number.King));
+                    } else if (house == Suit.Heart || house == Suit.Diamond)
+                    {
+                        nonShuffled.Add(new Card(house, Number.Joker));
+                    }
+                    //nonShuffled.Add(new Card(house, value));
                 }
             }
             return nonShuffled;

@@ -58,9 +58,10 @@
             // pbPlayerA
             // 
             this.pbPlayerA.Image = global::MacauGame.Properties.Resources.BACK;
-            this.pbPlayerA.Location = new System.Drawing.Point(353, 49);
+            this.pbPlayerA.Location = new System.Drawing.Point(265, 40);
+            this.pbPlayerA.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.pbPlayerA.Name = "pbPlayerA";
-            this.pbPlayerA.Size = new System.Drawing.Size(180, 270);
+            this.pbPlayerA.Size = new System.Drawing.Size(135, 219);
             this.pbPlayerA.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pbPlayerA.TabIndex = 0;
             this.pbPlayerA.TabStop = false;
@@ -69,36 +70,40 @@
             // pbPlayerD
             // 
             this.pbPlayerD.Image = global::MacauGame.Properties.Resources.BACK;
-            this.pbPlayerD.Location = new System.Drawing.Point(12, 358);
+            this.pbPlayerD.Location = new System.Drawing.Point(9, 291);
+            this.pbPlayerD.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.pbPlayerD.Name = "pbPlayerD";
-            this.pbPlayerD.Size = new System.Drawing.Size(270, 180);
+            this.pbPlayerD.Size = new System.Drawing.Size(202, 146);
             this.pbPlayerD.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pbPlayerD.TabIndex = 1;
             this.pbPlayerD.TabStop = false;
             // 
             // lblPlayerAName
             // 
-            this.lblPlayerAName.Location = new System.Drawing.Point(350, 9);
+            this.lblPlayerAName.Location = new System.Drawing.Point(262, 7);
+            this.lblPlayerAName.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblPlayerAName.Name = "lblPlayerAName";
-            this.lblPlayerAName.Size = new System.Drawing.Size(183, 37);
+            this.lblPlayerAName.Size = new System.Drawing.Size(137, 30);
             this.lblPlayerAName.TabIndex = 2;
             this.lblPlayerAName.Text = "Player A";
             this.lblPlayerAName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lblPlayerDName
             // 
-            this.lblPlayerDName.Location = new System.Drawing.Point(12, 318);
+            this.lblPlayerDName.Location = new System.Drawing.Point(9, 258);
+            this.lblPlayerDName.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblPlayerDName.Name = "lblPlayerDName";
-            this.lblPlayerDName.Size = new System.Drawing.Size(270, 37);
+            this.lblPlayerDName.Size = new System.Drawing.Size(202, 30);
             this.lblPlayerDName.TabIndex = 3;
             this.lblPlayerDName.Text = "Player D";
             this.lblPlayerDName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lblPlayerBName
             // 
-            this.lblPlayerBName.Location = new System.Drawing.Point(600, 9);
+            this.lblPlayerBName.Location = new System.Drawing.Point(450, 7);
+            this.lblPlayerBName.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblPlayerBName.Name = "lblPlayerBName";
-            this.lblPlayerBName.Size = new System.Drawing.Size(183, 37);
+            this.lblPlayerBName.Size = new System.Drawing.Size(137, 30);
             this.lblPlayerBName.TabIndex = 5;
             this.lblPlayerBName.Text = "Player B";
             this.lblPlayerBName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -106,9 +111,10 @@
             // pbPlayerB
             // 
             this.pbPlayerB.Image = global::MacauGame.Properties.Resources.BACK;
-            this.pbPlayerB.Location = new System.Drawing.Point(603, 49);
+            this.pbPlayerB.Location = new System.Drawing.Point(452, 40);
+            this.pbPlayerB.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.pbPlayerB.Name = "pbPlayerB";
-            this.pbPlayerB.Size = new System.Drawing.Size(180, 270);
+            this.pbPlayerB.Size = new System.Drawing.Size(135, 219);
             this.pbPlayerB.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pbPlayerB.TabIndex = 4;
             this.pbPlayerB.TabStop = false;
@@ -116,9 +122,10 @@
             // 
             // lblPlayerCName
             // 
-            this.lblPlayerCName.Location = new System.Drawing.Point(850, 9);
+            this.lblPlayerCName.Location = new System.Drawing.Point(638, 7);
+            this.lblPlayerCName.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblPlayerCName.Name = "lblPlayerCName";
-            this.lblPlayerCName.Size = new System.Drawing.Size(183, 37);
+            this.lblPlayerCName.Size = new System.Drawing.Size(137, 30);
             this.lblPlayerCName.TabIndex = 7;
             this.lblPlayerCName.Text = "Player C";
             this.lblPlayerCName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -126,18 +133,20 @@
             // pbPlayerC
             // 
             this.pbPlayerC.Image = global::MacauGame.Properties.Resources.BACK;
-            this.pbPlayerC.Location = new System.Drawing.Point(853, 49);
+            this.pbPlayerC.Location = new System.Drawing.Point(640, 40);
+            this.pbPlayerC.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.pbPlayerC.Name = "pbPlayerC";
-            this.pbPlayerC.Size = new System.Drawing.Size(180, 270);
+            this.pbPlayerC.Size = new System.Drawing.Size(135, 219);
             this.pbPlayerC.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pbPlayerC.TabIndex = 6;
             this.pbPlayerC.TabStop = false;
             // 
             // lblPlayerEName
             // 
-            this.lblPlayerEName.Location = new System.Drawing.Point(1111, 318);
+            this.lblPlayerEName.Location = new System.Drawing.Point(833, 258);
+            this.lblPlayerEName.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblPlayerEName.Name = "lblPlayerEName";
-            this.lblPlayerEName.Size = new System.Drawing.Size(270, 37);
+            this.lblPlayerEName.Size = new System.Drawing.Size(202, 30);
             this.lblPlayerEName.TabIndex = 9;
             this.lblPlayerEName.Text = "Player E";
             this.lblPlayerEName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -145,9 +154,10 @@
             // pbPlayerE
             // 
             this.pbPlayerE.Image = global::MacauGame.Properties.Resources.BACK;
-            this.pbPlayerE.Location = new System.Drawing.Point(1111, 358);
+            this.pbPlayerE.Location = new System.Drawing.Point(833, 291);
+            this.pbPlayerE.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.pbPlayerE.Name = "pbPlayerE";
-            this.pbPlayerE.Size = new System.Drawing.Size(270, 180);
+            this.pbPlayerE.Size = new System.Drawing.Size(202, 146);
             this.pbPlayerE.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pbPlayerE.TabIndex = 8;
             this.pbPlayerE.TabStop = false;
@@ -155,16 +165,18 @@
             // panelTable
             // 
             this.panelTable.Controls.Add(this.btnVoteStart);
-            this.panelTable.Location = new System.Drawing.Point(288, 375);
+            this.panelTable.Location = new System.Drawing.Point(216, 305);
+            this.panelTable.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.panelTable.Name = "panelTable";
-            this.panelTable.Size = new System.Drawing.Size(817, 211);
+            this.panelTable.Size = new System.Drawing.Size(613, 211);
             this.panelTable.TabIndex = 10;
             // 
             // btnVoteStart
             // 
-            this.btnVoteStart.Location = new System.Drawing.Point(65, 12);
+            this.btnVoteStart.Location = new System.Drawing.Point(49, 10);
+            this.btnVoteStart.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.btnVoteStart.Name = "btnVoteStart";
-            this.btnVoteStart.Size = new System.Drawing.Size(680, 151);
+            this.btnVoteStart.Size = new System.Drawing.Size(510, 123);
             this.btnVoteStart.TabIndex = 16;
             this.btnVoteStart.Text = "Vote to Start Game";
             this.btnVoteStart.UseVisualStyleBackColor = true;
@@ -172,27 +184,30 @@
             // 
             // label1
             // 
-            this.label1.Location = new System.Drawing.Point(850, 335);
+            this.label1.Location = new System.Drawing.Point(638, 272);
+            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(183, 37);
+            this.label1.Size = new System.Drawing.Size(137, 30);
             this.label1.TabIndex = 11;
             this.label1.Text = "Placed cards\r\nTop on right";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lblTableEffect
             // 
-            this.lblTableEffect.Location = new System.Drawing.Point(350, 335);
+            this.lblTableEffect.Location = new System.Drawing.Point(262, 272);
+            this.lblTableEffect.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblTableEffect.Name = "lblTableEffect";
-            this.lblTableEffect.Size = new System.Drawing.Size(220, 37);
+            this.lblTableEffect.Size = new System.Drawing.Size(165, 30);
             this.lblTableEffect.TabIndex = 12;
             this.lblTableEffect.Text = "Effect:\r\nPickup 2 cards";
             this.lblTableEffect.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // pictureBox1
             // 
-            this.pictureBox1.Location = new System.Drawing.Point(158, 49);
+            this.pictureBox1.Location = new System.Drawing.Point(118, 40);
+            this.pictureBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(135, 203);
+            this.pictureBox1.Size = new System.Drawing.Size(101, 165);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox1.TabIndex = 13;
             this.pictureBox1.TabStop = false;
@@ -200,16 +215,18 @@
             // panelHand
             // 
             this.panelHand.AutoScroll = true;
-            this.panelHand.Location = new System.Drawing.Point(12, 592);
+            this.panelHand.Location = new System.Drawing.Point(9, 481);
+            this.panelHand.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.panelHand.Name = "panelHand";
-            this.panelHand.Size = new System.Drawing.Size(1140, 270);
+            this.panelHand.Size = new System.Drawing.Size(855, 219);
             this.panelHand.TabIndex = 11;
             // 
             // btnPlace
             // 
-            this.btnPlace.Location = new System.Drawing.Point(1158, 592);
+            this.btnPlace.Location = new System.Drawing.Point(868, 481);
+            this.btnPlace.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.btnPlace.Name = "btnPlace";
-            this.btnPlace.Size = new System.Drawing.Size(223, 61);
+            this.btnPlace.Size = new System.Drawing.Size(167, 50);
             this.btnPlace.TabIndex = 14;
             this.btnPlace.Text = "Place";
             this.btnPlace.UseVisualStyleBackColor = true;
@@ -217,9 +234,10 @@
             // 
             // btnAltAction
             // 
-            this.btnAltAction.Location = new System.Drawing.Point(1158, 659);
+            this.btnAltAction.Location = new System.Drawing.Point(868, 535);
+            this.btnAltAction.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.btnAltAction.Name = "btnAltAction";
-            this.btnAltAction.Size = new System.Drawing.Size(223, 61);
+            this.btnAltAction.Size = new System.Drawing.Size(167, 50);
             this.btnAltAction.TabIndex = 15;
             this.btnAltAction.Text = "[Skip] [Pickup]";
             this.btnAltAction.UseVisualStyleBackColor = true;
@@ -227,9 +245,9 @@
             // 
             // GameClient
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1393, 844);
+            this.ClientSize = new System.Drawing.Size(1028, 609);
             this.Controls.Add(this.btnAltAction);
             this.Controls.Add(this.btnPlace);
             this.Controls.Add(this.panelHand);
@@ -247,6 +265,7 @@
             this.Controls.Add(this.lblPlayerAName);
             this.Controls.Add(this.pbPlayerD);
             this.Controls.Add(this.pbPlayerA);
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "GameClient";
             this.Text = "GameClient";
             this.Load += new System.EventHandler(this.GameClient_Load);

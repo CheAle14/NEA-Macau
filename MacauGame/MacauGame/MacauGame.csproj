@@ -52,7 +52,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject />
+    <StartupObject>MacauGame.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DeltaCompressionDotNet, Version=1.1.0.0, Culture=neutral, PublicKeyToken=1d14d6e5194e7f4a, processorArchitecture=MSIL">
@@ -168,10 +168,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\masterlist\MLAPI\MLAPI\MLAPI.csproj">
-      <Project>{04ff400a-f1d6-4eb7-9a2d-52e5dda2ae0c}</Project>
-      <Name>MLAPI</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\MacauEngine\MacauEngine\MacauEngine.csproj">
       <Project>{f846cafa-00a5-4e7d-ab37-802535ca197b}</Project>
       <Name>MacauEngine</Name>

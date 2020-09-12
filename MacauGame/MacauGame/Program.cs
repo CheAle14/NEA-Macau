@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -51,11 +53,13 @@ namespace MacauGame
         static void Main(string[] args)
         {
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+#if USING_MLAPI
             MLAPI.MasterList.Log = (msg) =>
             {
                 Log.Info("MSL", msg);
                 return Task.CompletedTask;
             };
+#endif
             RND = new Random();
 #if DEBUG
             Log.Info($"Skipping version checks due to debug configuration.");
@@ -130,6 +134,22 @@ namespace MacauGame
             if (e.IsTerminating)
                 Log.Error("UnhandledEx", "We must now exit");
             MessageBox.Show(((Exception)e.ExceptionObject).ToString());
+        }
+
+        /// <summary>
+        /// From https://stackoverflow.com/a/6803109
+        /// </summary>
+        public static string GetLocalIPAddress()
+        {
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    return ip.ToString();
+                }
+            }
+            throw new Exception("No network adapters with an IPv4 address in the system!");
         }
     }
 }

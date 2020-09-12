@@ -1,5 +1,7 @@
 ﻿using MacauEngine.Models;
+#if USING_MLAPI
 using MLAPI.Classes.Client;
+#endif
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -40,6 +42,7 @@ namespace MacauGame.Client
 
         void updateML()
         {
+#if USING_MLAPI
             List<ServerInfo> servers;
             try
             {
@@ -57,8 +60,15 @@ namespace MacauGame.Client
                     this.Name = "Could not fetch masterlist";
                 }));
             }
+#else
+            this.Invoke(new Action(() =>
+            {
+                this.Name = "Masterlist is disabled.";
+            }));
+#endif
         }
 
+#if USING_MLAPI
         void foundServers(List<MLAPI.Classes.Client.ServerInfo> servers)
         {
             foreach(var srv in servers)
@@ -68,7 +78,7 @@ namespace MacauGame.Client
             }
             this.Text = $"Found {servers.Count} online servers";
         }
-
+#endif
         private void txtIP_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             txtIP.ReadOnly = !txtIP.ReadOnly;

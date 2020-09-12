@@ -1,6 +1,8 @@
 ﻿using MacauEngine.Models;
+#if USING_MLAPI
 using MLAPI;
 using MLAPI.Classes.Server;
+#endif
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -70,51 +72,56 @@ namespace MacauGame.Server
 
         public void StartGame()
         {
-            if (GameStarted)
-                return;
-            GameStarted = true;
-            Table = new Table();
-            var topCard = Table.DrawCard();
-            if (topCard.Value == MacauEngine.Models.Enums.Number.Ace)
-                topCard.AceSuit = topCard.House;
-            Table.ShowingCards.Add(topCard);
-            OrderedPlayers = Players.Select(x => x.Value).OrderBy(x => x.Player.Order).ToList();
-            Log.Info($"Starting game with {OrderedPlayers.Count}; table: {Table.ShowingCards[0]}");
-            CurrentWaitingOn = OrderedPlayers[0];
-            var placedPacket = new Packet(PacketId.NewCardsPlaced, new JArray() { Table.ShowingCards[0].ToJson() });
+            ClientBehaviour.lockGlobal(() =>
+            {
+                if (GameStarted)
+                    return;
+                GameStarted = true;
+                Table = new Table();
+                var topCard = Table.DrawCard();
+                if (topCard.Value == MacauEngine.Models.Enums.Number.Ace)
+                    topCard.AceSuit = topCard.House;
+                Table.ShowingCards.Add(topCard);
+                OrderedPlayers = Players.Select(x => x.Value).OrderBy(x => x.Player.Order).ToList();
+                Log.Info($"Starting game with {OrderedPlayers.Count}; table: {Table.ShowingCards[0]}");
+                CurrentWaitingOn = OrderedPlayers[0];
+                var placedPacket = new Packet(PacketId.NewCardsPlaced, new JArray() { Table.ShowingCards[0].ToJson() });
 
-            // We need to ensure all players know one another.
-            // And also know one another's order
-            int orderCount = 0;
-            var orderArray = new JArray();
-            foreach(var player in OrderedPlayers)
-            {
-                player.Player.Order = orderCount++;
-                orderArray.Add(player.Player.ToJson());
-            }
-            var orderObject = new JObject();
-            orderObject["players"] = orderArray;
-            var orderPacket = new Packet(PacketId.ProvideGameInfo, orderObject);
-            foreach (var player in OrderedPlayers)
-            {
-                player.Player.Order = orderCount++;
-                player.Player.Hand = new List<Card>();
-                var jarray = new JArray();
-                for (int i = 0; i < 5; i++)
+                // We need to ensure all players know one another.
+                // And also know one another's order
+                int orderCount = 0;
+                var orderArray = new JArray();
+                foreach (var player in OrderedPlayers)
                 {
-                    player.Player.Hand.Add(Table.DrawCard());
-                    jarray.Add(player.Player.Hand[i].ToJson());
+                    player.Player.Order = orderCount++;
+                    orderArray.Add(player.Player.ToJson());
                 }
-                player.Send(orderPacket);
-                Thread.Sleep(500); // probably not needed, but we'll throw it in just in case.
-                var packet = new Packet(PacketId.BulkPickupCards, jarray);
-                player.Send(packet);
-                Thread.Sleep(500); 
-                player.Send(placedPacket);
-                Thread.Sleep(500);
-            }
-            CurrentWaitingOn.Send(new Packet(PacketId.WaitingOnYou, JValue.CreateNull()));
-            Log.Info($"Finished starting game, waiting on action from {CurrentWaitingOn.Name}");
+                var orderObject = new JObject();
+                orderObject["players"] = orderArray;
+                var orderPacket = new Packet(PacketId.ProvideGameInfo, orderObject);
+                var waitingOnPacket = new Packet(PacketId.WaitingOn, JValue.FromObject(CurrentWaitingOn.Id));
+                foreach (var player in OrderedPlayers)
+                {
+                    player.Player.Order = orderCount++;
+                    player.Player.Hand = new List<Card>();
+                    var jarray = new JArray();
+                    for (int i = 0; i < 5; i++)
+                    {
+                        player.Player.Hand.Add(Table.DrawCard());
+                        jarray.Add(player.Player.Hand[i].ToJson());
+                    }
+                    player.Send(orderPacket);
+                    Thread.Sleep(500); // probably not needed, but we'll throw it in just in case.
+                    var packet = new Packet(PacketId.BulkPickupCards, jarray);
+                    player.Send(packet);
+                    Thread.Sleep(500);
+                    player.Send(placedPacket);
+                    Thread.Sleep(500);
+                    player.Send(waitingOnPacket);
+                    Thread.Sleep(500);
+                }
+                Log.Info($"Finished starting game, waiting on action from {CurrentWaitingOn.Name}");
+            });
         }
 
         ClientBehaviour getNextMatch(ClientBehaviour current, Func<Player, bool> predicate, int direction = 1)
@@ -196,6 +203,7 @@ namespace MacauGame.Server
 
         void masterlist()
         {
+#if USING_MLAPI
             Log.Info("Reaching out to ML...");
             try
             {
@@ -216,6 +224,9 @@ namespace MacauGame.Server
                 Log.Error("MasterlistStart", ex);
                 Log.Info("Server not hosted on ML.");
             }
+#else
+            Log.Warn("Masterlist is disabled; IP of server is: " + Program.GetLocalIPAddress());
+#endif
         }
 
         private void MacauServer_FormClosing(object sender, FormClosingEventArgs e)

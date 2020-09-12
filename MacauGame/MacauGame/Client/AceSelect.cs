@@ -27,7 +27,6 @@ namespace MacauGame.Client
             var size = new Size(101, 165);
             var gapX = 3;
             var gapY = 10;
-            int maxX = 0;
             int y = 3;
             int x = 3;
             foreach (var house in new Suit[] { Suit.Club, Suit.Spade, Suit.Diamond, Suit.Heart})
@@ -44,7 +43,8 @@ namespace MacauGame.Client
                 this.Controls.Add(pb);
                 x += size.Width + gapX;
             }
-            this.Size = new Size(maxX + gapX, y + gapY);
+            y += size.Height + gapY;
+            this.Size = new Size(x + gapX, y + gapY);
         }
 
         private void Pb_Click(object sender, EventArgs e)
