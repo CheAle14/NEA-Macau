@@ -9,6 +9,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -183,6 +184,16 @@ namespace MacauGame.Server
             new Thread(masterlist).Start();
         }
 
+        static string getIp()
+        {
+            using (var hc = new HttpClient())
+            {
+                var resp = hc.GetAsync("https://icanhazip.com").Result;
+                var text = resp.Content.ReadAsStringAsync().Result;
+                return text.Trim();
+            }
+        }
+
         void masterlist()
         {
             Log.Info("Reaching out to ML...");
@@ -192,7 +203,8 @@ namespace MacauGame.Server
                 {
                     x.Game = Program.GAME_TYPE;
                     x.InternalIP = IPAddress.Parse("192.168.1.2");
-                    x.Name = "Test Server 4";
+                    x.ExternalIP = IPAddress.Parse(getIp());
+                    x.Name = "NEA Test #2";
                     x.Port = PORT;
                     x.IsPortForward = true;
                 }).Result;

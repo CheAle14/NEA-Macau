@@ -80,6 +80,7 @@ namespace MacauGame
         {
             using (var updater = await UpdateManager.GitHubUpdateManager("https://github.com/CheAle14/NEA-Macau"))
             {
+                SquirrelAwareApp.HandleEvents(onInitialInstall, onAppUpdate, onAppObsoleted, onAppUninstall, onFirstRun);
                 //var updater = await mgr;
                 var update = await updater.UpdateApp();
                 if(update == null)
@@ -92,6 +93,37 @@ namespace MacauGame
             }
         }
 
+        string getShortcutInstallLocation()
+        {
+            var ip = Program.Ip
+        }
+
+        static void createShortCut(Version v)
+        {
+            object shDesktop = (object)"Desktop";
+            WshShell shell = new WshShell();
+            string shortcutAddress = (string)shell.SpecialFolders.Item(ref shDesktop) + @"\Notepad.lnk";
+            IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutAddress);
+            shortcut.Description = "New shortcut for a Notepad";
+            shortcut.Hotkey = "Ctrl+Shift+N";
+            shortcut.TargetPath = Environment.GetFolderPath(Environment.SpecialFolder.System) + @"\notepad.exe";
+            shortcut.Save();
+        }
+        static void removeShotCut(Version v)
+        {
+
+        }
+        static void onInitialInstall(Version v) => createShortCut(v);
+        static void onAppUpdate(Version v) => createShortCut(v);
+        static void onAppUninstall(Version v) => removeShotCut(v);
+        static void onFirstRun()
+        {
+
+        }
+
+        static void onAppObsoleted(Version v)
+        {
+        }
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             Log.Error($"UnhandledEx", (Exception)e.ExceptionObject);
