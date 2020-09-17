@@ -42,6 +42,13 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>MacauGame</PackageId>
+    <Authors>CheAle14</Authors>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <Version>0.0.1</Version>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
@@ -52,7 +59,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>MacauGame.Program</StartupObject>
+    <StartupObject />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DeltaCompressionDotNet, Version=1.1.0.0, Culture=neutral, PublicKeyToken=1d14d6e5194e7f4a, processorArchitecture=MSIL">
@@ -165,15 +172,20 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="packages.config" />
+    <None Include="MacauGame.nuspec" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\masterlist\MLAPI\MLAPI\MLAPI.csproj">
+      <Project>{04ff400a-f1d6-4eb7-9a2d-52e5dda2ae0c}</Project>
+      <Name>MLAPI</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\MacauEngine\MacauEngine\MacauEngine.csproj">
       <Project>{f846cafa-00a5-4e7d-ab37-802535ca197b}</Project>
       <Name>MacauEngine</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="Resources\C_10.svg" />
   </ItemGroup>
   <ItemGroup>
@@ -381,6 +393,17 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="IWshRuntimeLibrary">
+      <Guid>{F935DC20-1CF0-11D0-ADB9-00C04FD58A0B}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild" Condition=" '$(Configuration)' == 'Release'">
     <GetAssemblyIdentity AssemblyFiles="$(TargetPath)">
@@ -406,4 +429,12 @@
     <Exec Command="..\packages\squirrel.windows.1.9.1\tools\Squirrel.exe --releasify $(OutDir)CheAle14.$(TargetName).$(SemVerNumber).nupkg --releaseDir=$(ReleaseDir) $(SquirrelParams)" />
   </Target>
   <Import Project="..\packages\squirrel.windows.1.9.1\build\squirrel.windows.targets" Condition="Exists('..\packages\squirrel.windows.1.9.1\build\squirrel.windows.targets')" />
+  <PropertyGroup>
+    <PostBuildEvent>IF NOT "$(ConfigurationName)" == "Release" EXIT
+echo Removing prior
+del $(TargetDir)*.nupkg
+echo Packaging new
+nuget pack "$(ProjectDir)MacauGame.nuspec"
+forfiles /P $(TargetDir) /m *.nupkg /c "cmd /c echo @FILE &amp;&amp; Squirrel.exe --releasify @FILE -r $(SolutionDir)Releases"</PostBuildEvent>
+  </PropertyGroup>
 </Project>

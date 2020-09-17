@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -8,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using IWshRuntimeLibrary;
 using Newtonsoft.Json;
 using Squirrel;
 
@@ -29,7 +31,7 @@ namespace MacauGame
             if (!Directory.Exists(AppDataPath))
                 Directory.CreateDirectory(AppDataPath);
             var path = Path.Combine(AppDataPath, "config.json");
-            File.WriteAllText(path, json);
+            System.IO.File.WriteAllText(path, json);
         }
 
         public static void LoadConfig()
@@ -40,7 +42,7 @@ namespace MacauGame
             var path = Path.Combine(AppDataPath, "config.json");
             try
             {
-                var json = File.ReadAllText(path);
+                var json = System.IO.File.ReadAllText(path);
                 var obj = JsonConvert.DeserializeObject<Options>(json);
                 Configuration = obj;
             } catch (Exception ex)
@@ -80,9 +82,11 @@ namespace MacauGame
             SaveConfig();
         }
 
+        static async Task<UpdateManager> getMgr() => await UpdateManager.GitHubUpdateManager("https://github.com/CheAle14/NEA-Macau");
+
         static async Task Main()
         {
-            using (var updater = await UpdateManager.GitHubUpdateManager("https://github.com/CheAle14/NEA-Macau"))
+            using (var updater = await getMgr())
             {
                 SquirrelAwareApp.HandleEvents(onInitialInstall, onAppUpdate, onAppObsoleted, onAppUninstall, onFirstRun);
                 //var updater = await mgr;
@@ -97,24 +101,35 @@ namespace MacauGame
             }
         }
 
-        string getShortcutInstallLocation()
-        {
-            var ip = Program.Ip
-        }
-
         static void createShortCut(Version v)
         {
-            object shDesktop = (object)"Desktop";
+            if(GetLocalIPAddress().StartsWith("10."))
+            {
+                using (var mgr = getMgr().Result)
+                    mgr.CreateShortcutForThisExe();
+                return;
+            }
             WshShell shell = new WshShell();
-            string shortcutAddress = (string)shell.SpecialFolders.Item(ref shDesktop) + @"\Notepad.lnk";
+            string shortcutAddress = @"D:\\MacauGame.lnk";
             IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutAddress);
-            shortcut.Description = "New shortcut for a Notepad";
-            shortcut.Hotkey = "Ctrl+Shift+N";
-            shortcut.TargetPath = Environment.GetFolderPath(Environment.SpecialFolder.System) + @"\notepad.exe";
+            shortcut.Description = "Shortcut to launch Macau game";
+            string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)
+                + @"\CheAle14\Update.exe";
+            shortcut.TargetPath = path;
+            shortcut.WorkingDirectory = Path.GetDirectoryName(path) + "\\app-" + v.ToString();
+            shortcut.Arguments = "--processStart MacauGame.exe";
             shortcut.Save();
         }
         static void removeShotCut(Version v)
         {
+            if (GetLocalIPAddress().StartsWith("10."))
+            {
+                using (var mgr = getMgr().Result)
+                    mgr.RemoveShortcutForThisExe();
+                return;
+            }
+            if (System.IO.File.Exists("D:\\MacauGame.lnk"))
+                System.IO.File.Delete("D:\\MacauGame.lnk");
 
         }
         static void onInitialInstall(Version v) => createShortCut(v);
