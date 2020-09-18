@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MacauGame", "MacauGame\Maca
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MacauEngine", "..\MacauEngine\MacauEngine\MacauEngine.csproj", "{F846CAFA-00A5-4E7D-AB37-802535CA197B}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MLAPI", "..\..\masterlist\MLAPI\MLAPI\MLAPI.csproj", "{D4D74891-160E-4127-99A4-3E33FA929551}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{F846CAFA-00A5-4E7D-AB37-802535CA197B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F846CAFA-00A5-4E7D-AB37-802535CA197B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F846CAFA-00A5-4E7D-AB37-802535CA197B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4D74891-160E-4127-99A4-3E33FA929551}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4D74891-160E-4127-99A4-3E33FA929551}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4D74891-160E-4127-99A4-3E33FA929551}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4D74891-160E-4127-99A4-3E33FA929551}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

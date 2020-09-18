@@ -40,7 +40,7 @@ namespace MacauGame.Server
 
         System.Drawing.Color GetColor(Log.LogSeverity sev)
         {
-            switch(sev)
+            switch (sev)
             {
                 case Log.LogSeverity.Trace:
                     return Color.DarkGray;
@@ -64,6 +64,10 @@ namespace MacauGame.Server
         public List<ClientBehaviour> OrderedPlayers { get; set; }
         public ClientBehaviour PreviousWaitingOn { get; set; }
         public ClientBehaviour CurrentWaitingOn { get; set; }
+
+#if USING_MLAPI
+        public RestServer MLServer { get; private set; }
+#endif
 
         public Table Table { get; set; }
         public WebSocketServer WsServer { get; set; }
@@ -207,7 +211,7 @@ namespace MacauGame.Server
             Log.Info("Reaching out to ML...");
             try
             {
-                var rest = MasterList.GetOrCreate(x =>
+                MLServer = MasterList.GetOrCreate(x =>
                 {
                     x.Game = Program.GAME_TYPE;
                     x.InternalIP = IPAddress.Parse("192.168.1.2");
@@ -216,7 +220,7 @@ namespace MacauGame.Server
                     x.Port = PORT;
                     x.IsPortForward = true;
                 }).Result;
-                rest.PingOnline().GetAwaiter().GetResult();
+                MLServer.PingOnline().GetAwaiter().GetResult();
                 Log.Info("Server on masterlist");
             }
             catch (Exception ex)
