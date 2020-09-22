@@ -1,0 +1,74 @@
+FUNCTION checkGroupCards(cards)
+    // cards is a list or array of Card objects.
+    DECLARE firstValue = cards[0].Value
+    FOREACH card IN cards
+        IF card.Value != firstValue THEN
+            // User has attempted to place more than one value
+            RETURN ERROR("Cards being placed must all be of same value")
+        ENDIF
+    NEXT
+    RETURN SUCCESS()
+ENDFUNCTION
+
+FUNCTION checkPairwise(bottomCard, topCard) 
+    // where:
+    // bottomCard = the card on table, or below the...
+    // topCard = the card on top, being placed onto the bottomCard
+    IF bottomCard.IsActive THEN
+        // special actions must be taken by the player, as 
+        // they are being threatened by something
+        IF bottomCard.IsPickupCard THEN
+            // IsPickupCard is true when card's value is Two, Three or Joker.
+            // thus, player is being threatened to pick up one or more cards.
+            // the player must either:
+            // - place a pickup card of their own, moving the threat to the next player;
+            // - place a Seven, thus voiding any pickup
+            // - place a King, to make the previous player pickup.
+            // any other action is illegal.
+            IF topCard.IsPickupCard OR topCard.IsDefenseCard THEN
+                // IsDefenseCard is true when card's value is Seven or King.
+                RETURN SUCCESS()
+            ELSE
+                RETURN ERROR("You must place a pickup or defense card against an active pickup card.")
+            ENDIF
+        ENDIF
+    ENDIF
+    IF topCard.Value == Ace OR topCard.Value == Joker THEN
+        // They are universal cards that can be placed on anything
+        RETURN SUCCESS()
+    ENDIF
+    IF topCard.Suit == bottomCard.Suit THEN
+        RETURN SUCCESS()
+    ELSE
+        IF topCard.Value == bottomCard.Value THEN
+            RETURN SUCCESS()
+        ELSE
+            RETURN ERROR("Either suits or values must be the same to place.")
+        ENDIF
+    ENDIF
+ENDFUNCTION
+
+FUNCTION canPlaceCards(tableCard, cardArray)
+    // where:
+    // cardArray = an array of the cards the player is trying to place,
+    //             with the first element on bottom, and last element
+    //             on the top.
+    IF cardArray.Length > 1 THEN
+        // ensure cardArray does not contain more than one type of card.
+        // for example:
+        // - [Two Hearts, Two Clubs, Two Diamonds...] = legal.
+        // - [Two Hearts, Three Hearts] = illegal.
+        IF NOT checkGroupCards(cardArray) THEN
+            RETURN ERROR("You cannot place more than one value of card at a time.")
+        ENDIF
+    ENDIF
+    FOR index = 0 TO cardArray.Length STEP 2
+        DECLARE bottom = cardArray[index]
+        DECLARE top = cardArray[index + 1]
+        DECLARE result = checkPairwise(bottom, top)
+        IF result IS ERROR THEN
+            RETURN result
+        ENDIF        
+    NEXT
+    RETURN SUCCESS()
+ENDFUNCTION
