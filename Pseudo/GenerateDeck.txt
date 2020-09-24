@@ -1,0 +1,29 @@
+// Returns a list of 54 cards: a standard playing deck with two Jokers.
+FUNCTION generateDeck() 
+    DECLARE list = [] // list of Cards.
+    FOREACH suit // enum: Diamonds, Clubs, Spades, Hearts
+        FOREACH cardNumber // enum: Two, Three, Four, Five...
+            IF cardNumber == Joker AND suit == Diamonds THEN
+                // we only want one Red Joker, so skip on Diamonds 
+                // to ensure only a Joker of Hearts.
+                NEXT
+            ELSE IF cardNumber == Joker AND suit == Clubs THEN
+                // same as above, only one Black Joker.
+                NEXT
+            ENDIF
+            list.append(new Card(suit, cardNumber)) // Card class.
+        NEXT
+    NEXT
+    RETURN list
+END FUNCTION
+
+// Returns a list of the argument psuedo-randomly shuffled.
+FUNCTION shuffledDeck(listOfCards)
+    DECLARE shuffledList = []
+    WHILE len(listOfCards) > 0
+        DECLARE index = RANDOM(0, len(listOfCards) - 1)
+        shuffledList.append(listOfCards[index])
+        listOfCards.removeAt(index)
+    NEXT
+    RETURN shuffledList
+ENDFUNCTION
