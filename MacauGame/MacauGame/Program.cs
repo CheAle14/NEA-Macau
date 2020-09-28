@@ -13,6 +13,7 @@ using IWshRuntimeLibrary;
 using Newtonsoft.Json;
 using Squirrel;
 
+[assembly: System.Reflection.AssemblyMetadata("SquirrelAwareVersion", "1")]
 namespace MacauGame
 {
     internal class Program
@@ -63,7 +64,7 @@ namespace MacauGame
             };
 #endif
             RND = new Random();
-#if DEBUG
+#if !DEBUG
             Log.Info($"Skipping version checks due to debug configuration.");
 #else
             Log.Info($"Started, checking updates");
@@ -91,6 +92,7 @@ namespace MacauGame
         {
             using (var updater = await getMgr())
             {
+                Log.Info(updater.ApplicationName ?? "unknown app name");
                 SquirrelAwareApp.HandleEvents(onInitialInstall, onAppUpdate, onAppObsoleted, onAppUninstall, onFirstRun);
                 //var updater = await mgr;
                 var update = await updater.UpdateApp();
@@ -119,7 +121,7 @@ namespace MacauGame
             string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)
                 + @"\CheAle14\Update.exe";
             shortcut.TargetPath = path;
-            shortcut.WorkingDirectory = Path.GetDirectoryName(path) + "\\app-" + v.ToString();
+            shortcut.WorkingDirectory = Path.GetDirectoryName(path) + $"\\app-{v.Major}.{v.Minor}.{v.Build}";
             shortcut.Arguments = "--processStart MacauGame.exe";
             shortcut.Save();
         }
