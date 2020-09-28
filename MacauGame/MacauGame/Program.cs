@@ -85,7 +85,7 @@ namespace MacauGame
 
         static async Task<UpdateManager> getMgr()
         {
-            return new UpdateManager("https://masterlist.uk.ms/nea");
+            return new UpdateManager("https://masterlist.uk.ms/nea", "MacauGame", ".");
         }
 
         static async Task Main()
