@@ -28,7 +28,7 @@ function Get-Token {
 $token = Get-Token
 cd Releases
 git add --all
-git commit -m "Publishment."
+git commit -m "Publish $($firstFile)"
 git remote set-url origin "https://CheAle14:$($token)@github.com/CheAle14/nea-builds.git"
 git push
 

@@ -82,7 +82,10 @@ namespace MacauGame
             SaveConfig();
         }
 
-        static async Task<UpdateManager> getMgr() => await UpdateManager.GitHubUpdateManager("https://github.com/CheAle14/NEA-Macau");
+        static async Task<UpdateManager> getMgr()
+        {
+            return new UpdateManager("https://masterlist.uk.ms/nea");
+        }
 
         static async Task Main()
         {
