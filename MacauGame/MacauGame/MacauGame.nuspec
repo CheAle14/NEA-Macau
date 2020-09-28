@@ -9,7 +9,7 @@
     <summary>Game for NEA</summary>
   </metadata>
   <files>
-    <file src="*.exe" target="lib\net45\" exclude="*.pdb;*.nupkg;*.vshost.*"/>
-    <file src="*.dll" target="lib\net45\" exclude="*.pdb;*.nupkg;*.vshost.*"/>
+    <file src="bin/*/*.exe" target="lib\net45\" exclude="*.pdb;*.nupkg;*.vshost.*"/>
+    <file src="bin/*/*.dll" target="lib\net45\" exclude="*.pdb;*.nupkg;*.vshost.*"/>
   </files>
 </package>

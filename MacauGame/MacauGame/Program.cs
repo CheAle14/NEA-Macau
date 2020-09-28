@@ -103,7 +103,7 @@ namespace MacauGame
 
         static void createShortCut(Version v)
         {
-            if(GetLocalIPAddress().StartsWith("10."))
+            if(!GetLocalIPAddress().StartsWith("10."))
             {
                 using (var mgr = getMgr().Result)
                     mgr.CreateShortcutForThisExe();
@@ -122,7 +122,7 @@ namespace MacauGame
         }
         static void removeShotCut(Version v)
         {
-            if (GetLocalIPAddress().StartsWith("10."))
+            if (!GetLocalIPAddress().StartsWith("10."))
             {
                 using (var mgr = getMgr().Result)
                     mgr.RemoveShortcutForThisExe();
