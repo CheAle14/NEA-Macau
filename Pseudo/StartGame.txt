@@ -1,0 +1,13 @@
+// This algorithm initialises the game state once the game has begun.
+FUNCTION startGame()
+	DECLARE players // list of players connected
+	DECLARE deck = new Deck().Shuffle() // shuffled cards
+	DECLARE tableCard = deck.DrawCard() // 
+	FOREACH player in players
+		FOR i = 0 TO 5
+			player.Hand.append(deck.DrawCard())
+		NEXT
+		player.WebSocket.Send(player.Hand) // send packet with cards the player just picked up
+		player.WebSocket.Send(players) // send the player who is currently in the game
+	NEXT
+END FUNCTION
