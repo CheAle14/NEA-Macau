@@ -1,14 +1,28 @@
+function ExitWithCode { param($exitcode) $host.SetShouldExit($exitcode); exit }
 Write-Host "[01] You must build the project in VisualStudio first."
 Write-Host "     Press any key once you have done so."
 Read-Host
 Write-Host "[02] Assuming you have built, packaging..."
 Remove-Item -Recurse -Force ./temp
 nuget.exe pack MacauGame/MacauGame.nuspec -OutputDirectory ./temp
+if($?) {
+    Write-Host "Successfully packaged."
+} else {
+    Write-Host "[03] ERROR - Nuget packaging failed."
+    ExitWithCode 1
+}
 $files = Get-ChildItem ./temp
 $firstFile = $files[0]
 Write-Host $firstFile
 cd ./temp
+Write-Host "Invoking squirrels..."
 Squirrel --releasify $firstFile -r ../Releases
+if($?) {
+    Write-Host "Successfully releasified."
+} else {
+    Write-Host "== ERROR: Failed to releasify"
+    ExitWithCode 2
+}
 cd ..
 
 function Get-Token {

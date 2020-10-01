@@ -5,11 +5,12 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using IWshRuntimeLibrary;
 using Newtonsoft.Json;
 using Squirrel;
 
@@ -21,6 +22,7 @@ namespace MacauGame
         public static string AppDataFolderName = "CheAle14-Macau";
         public static string AppDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), AppDataFolderName);
         public static string GAME_TYPE => AppDataFolderName.ToLower();
+        public static Version VERSION { get; set; } = new Version(0, 0, 0);
         public static Random RND { get; private set; }
 
         #region Config & Saved Preferences
@@ -55,7 +57,12 @@ namespace MacauGame
 
         static void Main(string[] args)
         {
+#if DEBUG
+            NativeMethods.AllocConsole();
+            Console.WriteLine("Debug Console");
+#endif
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            SquirrelAwareApp.HandleEvents(onInitialInstall, onAppUpdate, onAppObsoleted, onAppUninstall, onFirstRun);
 #if USING_MLAPI
             MLAPI.MasterList.Log = (msg) =>
             {
@@ -64,7 +71,7 @@ namespace MacauGame
             };
 #endif
             RND = new Random();
-#if !DEBUG
+#if DEBUG
             Log.Info($"Skipping version checks due to debug configuration.");
 #else
             Log.Info($"Started, checking updates");
@@ -76,6 +83,24 @@ namespace MacauGame
             var menu = new Menu();
             menu.FormClosing += Menu_FormClosing;
             Application.Run(menu);
+#if DEBUG
+            NativeMethods.FreeConsole();
+#endif
+        }
+
+        private static System.Reflection.Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        {
+            Log.Info($"Trying to find assembly '{args.Name}'");
+            if(args.Name == "Interop.IWshRuntimeLibrary")
+            {
+                var installDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CheAle14");
+                var folders = Directory.GetDirectories(installDir, "app-*");
+                var latest = folders.OrderBy(x => x).First();
+                var exeLocation = Path.Combine(latest, "Interop.IWshRuntimeLibrary.dll");
+                Log.Info($"Attempting to load '{exeLocation}'");
+                return Assembly.LoadFrom(exeLocation);
+            }
+            return null;
         }
 
         private static void Menu_FormClosing(object sender, FormClosingEventArgs e)
@@ -93,7 +118,6 @@ namespace MacauGame
             using (var updater = await getMgr())
             {
                 Log.Info(updater.ApplicationName ?? "unknown app name");
-                SquirrelAwareApp.HandleEvents(onInitialInstall, onAppUpdate, onAppObsoleted, onAppUninstall, onFirstRun);
                 //var updater = await mgr;
                 var update = await updater.UpdateApp();
                 if(update == null)
@@ -101,41 +125,41 @@ namespace MacauGame
                     Log.Info("Running latest version");
                 } else
                 {
+                    VERSION = update.Version.Version;
                     Log.Info($"Running version {(update?.Version?.ToString() ?? "error happened")}");
+                    createShortCut(VERSION);
                 }
             }
         }
 
-        static void createShortCut(Version v)
+        static string shortcutLocation = @"D:\MacauGame.lnk";
+
+        static void createShortcutAt(Version v, string location)
         {
-            if(!GetLocalIPAddress().StartsWith("10."))
-            {
-                using (var mgr = getMgr().Result)
-                    mgr.CreateShortcutForThisExe();
-                return;
-            }
-            WshShell shell = new WshShell();
-            string shortcutAddress = @"D:\\MacauGame.lnk";
-            IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutAddress);
-            shortcut.Description = "Shortcut to launch Macau game";
             string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)
                 + @"\CheAle14\Update.exe";
-            shortcut.TargetPath = path;
-            shortcut.WorkingDirectory = Path.GetDirectoryName(path) + $"\\app-{v.Major}.{v.Minor}.{v.Build}";
-            shortcut.Arguments = "--processStart MacauGame.exe";
-            shortcut.Save();
+            var sl = new Squirrel.Shell.ShellLink()
+            {
+                Target = path,
+                WorkingDirectory = Path.GetDirectoryName(path) + $"\\app-{v.Major}.{v.Minor}.{v.Build}",
+                Arguments = "--processStart MacauGame.exe",
+                Description = "Shortcut to launch NEA Macau Game.",
+            };
+            sl.Save(location);
+        }
+
+        static void createShortCut(Version v)
+        {
+            try
+            {
+                createShortcutAt(v, Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
+            } catch
+            {
+                createShortcutAt(v, shortcutLocation);
+            }
         }
         static void removeShotCut(Version v)
         {
-            if (!GetLocalIPAddress().StartsWith("10."))
-            {
-                using (var mgr = getMgr().Result)
-                    mgr.RemoveShortcutForThisExe();
-                return;
-            }
-            if (System.IO.File.Exists("D:\\MacauGame.lnk"))
-                System.IO.File.Delete("D:\\MacauGame.lnk");
-
         }
         static void onInitialInstall(Version v) => createShortCut(v);
         static void onAppUpdate(Version v) => createShortCut(v);
@@ -171,5 +195,32 @@ namespace MacauGame
             }
             throw new Exception("No network adapters with an IPv4 address in the system!");
         }
+    }
+
+    internal static class NativeMethods
+    {
+        // http://msdn.microsoft.com/en-us/library/ms681944(VS.85).aspx
+        /// <summary>
+        /// Allocates a new console for the calling process.
+        /// </summary>
+        /// <returns>nonzero if the function succeeds; otherwise, zero.</returns>
+        /// <remarks>
+        /// A process can be associated with only one console,
+        /// so the function fails if the calling process already has a console.
+        /// </remarks>
+        [DllImport("kernel32.dll", SetLastError = true)]
+        internal static extern int AllocConsole();
+
+        // http://msdn.microsoft.com/en-us/library/ms683150(VS.85).aspx
+        /// <summary>
+        /// Detaches the calling process from its console.
+        /// </summary>
+        /// <returns>nonzero if the function succeeds; otherwise, zero.</returns>
+        /// <remarks>
+        /// If the calling process is not already attached to a console,
+        /// the error code returned is ERROR_INVALID_PARAMETER (87).
+        /// </remarks>
+        [DllImport("kernel32.dll", SetLastError = true)]
+        internal static extern int FreeConsole();
     }
 }

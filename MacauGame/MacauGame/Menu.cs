@@ -40,7 +40,7 @@ namespace MacauGame
 
         private void Menu_Load(object sender, EventArgs e)
         {
-
+            this.Text = $"Macau ({Program.VERSION.Major}.{Program.VERSION.Minor}.{Program.VERSION.Build})";
         }
 
         private void btnClient_Click(object sender, EventArgs e)

@@ -56,7 +56,9 @@ namespace MacauGame.Server
 
         public static bool lockGlobal(Action someAction)
         {
+            MacauGame.Log.Info("Attempting to get global lock.");
             GLOBAL.WaitOne();
+            MacauGame.Log.Info("Achieved global lock");
             try
             {
                 someAction();
@@ -70,6 +72,7 @@ namespace MacauGame.Server
             }
             finally
             {
+                MacauGame.Log.Info("Releaseing global lock");
                 GLOBAL.Release();
             }
         }
@@ -376,6 +379,7 @@ namespace MacauGame.Server
             Log.Debug($"Opened new connection");
             lockGlobal(() =>
             {
+                Log.Debug("Entered global lock; handling new connection...");
                 var hwid = Context.QueryString["hwid"];
                 var name = Context.QueryString["name"];
                 if(hwid == null || name == null)

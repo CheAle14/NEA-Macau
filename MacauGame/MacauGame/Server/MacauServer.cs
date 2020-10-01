@@ -31,10 +31,14 @@ namespace MacauGame.Server
             {
                 if (this == null || this.IsDisposed || this.Disposing)
                     return;
-                this.Invoke(new Action(() =>
+                var act = new Action(() =>
                 {
                     rtbConsole.AppendText(msg.ToString() + "\r\n", GetColor(msg.Severity));
-                }));
+                });
+                if (this.InvokeRequired)
+                    this.Invoke(act);
+                else
+                    act();
             }, "S");
         }
 
@@ -214,9 +218,9 @@ namespace MacauGame.Server
                 MLServer = MasterList.GetOrCreate(x =>
                 {
                     x.Game = Program.GAME_TYPE;
-                    x.InternalIP = IPAddress.Parse("192.168.1.2");
+                    x.InternalIP = IPAddress.Parse(Program.GetLocalIPAddress());
                     x.ExternalIP = IPAddress.Parse(getIp());
-                    x.Name = "NEA Test #2";
+                    x.Name = "NEA - " + Environment.UserName;
                     x.Port = PORT;
                     x.IsPortForward = true;
                 }).Result;

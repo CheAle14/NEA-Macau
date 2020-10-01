@@ -18,17 +18,7 @@ namespace MacauGame
             public LogSeverity Severity { get; set; } 
             public string Message { get; set; }
             public Exception Exception { get; set; }
-            bool isParentInHierarchy(Type child, Type parent)
-            {
-                Type c1 = child;
-                do
-                {
-                    if (c1 == parent || c1.IsSubclassOf(parent))
-                        return true;
-                    c1 = c1.DeclaringType;
-                } while (c1 != null);
-                return false;
-            }
+            
             public LogMessage(string location, LogSeverity sev, string message, Exception ex)
             {
                 Date = DateTime.Now;
@@ -37,17 +27,7 @@ namespace MacauGame
                 Message = message;
                 Exception = ex;
 
-                Origin = "";
-                var stack = new StackTrace();
-                foreach(var frame in stack.GetFrames())
-                {
-                    var method = frame.GetMethod();
-                    var cls = method.DeclaringType;
-                    if (isParentInHierarchy(cls, typeof(Log)))
-                        continue;
-                    Origin = cls.FullName;
-                    break;
-                }
+                Origin = FindLocationNotLog();
                 if (Origin == "")
                     Origin = "?";
                 else if (Origin.Contains("Client"))
@@ -202,7 +182,7 @@ namespace MacauGame
         public static void LogMsg(LogMessage msg, string logNot = null)
         {
             DateTime now = DateTime.Now;
-            Console.WriteLine($"Enter Lock for LogMsg {now.Ticks}");
+            Console.WriteLine($"Enter Lock for LogMsg {now.Ticks} - {FindLocationNotLog(false)}");
             lock(padlock)
             {
                 foreach (var reciever in LogRecievers)
@@ -212,7 +192,9 @@ namespace MacauGame
                     {
                         try
                         {
+                            Console.WriteLine($"[{now.Ticks}] Going to invoke {reciever.Action.Method.Name}");
                             reciever.Invoke(msg);
+                            Console.WriteLine($"[{now.Ticks}] Invoked {reciever.Action.Method.Name}");
                         }
                         catch (Exception ex)
                         {
@@ -223,7 +205,7 @@ namespace MacauGame
                     }
                 }
             }
-            Console.WriteLine($"Exit Lock for LogMsg {now.Ticks}");
+            Console.WriteLine($"Exit Lock for LogMsg {now.Ticks} - {FindLocationNotLog(false)}");
         }
 
         static string fileName(string s) => s?.Substring(s.LastIndexOf('\\', '/') + 1) ?? "na";
@@ -242,6 +224,32 @@ namespace MacauGame
             var stack = new StackTrace(true);
             var frame = stack.GetFrame(frames); 
             return FormatStackFrame(frame);
+        }
+        static bool isParentInHierarchy(Type child, Type parent)
+        {
+            Type c1 = child;
+            do
+            {
+                if (c1 == parent || c1.IsSubclassOf(parent))
+                    return true;
+                c1 = c1.DeclaringType;
+            } while (c1 != null);
+            return false;
+        }
+        public static string FindLocationNotLog(bool fullName = true)
+        {
+            var o = "";
+            var stack = new StackTrace();
+            foreach (var frame in stack.GetFrames())
+            {
+                var method = frame.GetMethod();
+                var cls = method.DeclaringType;
+                if (isParentInHierarchy(cls, typeof(Log)))
+                    continue;
+                o = fullName ? cls.FullName : FormatStackFrame(frame);
+                break;
+            }
+            return o;
         }
 
         public static void Trace(string location, string message)

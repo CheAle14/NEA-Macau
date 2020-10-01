@@ -56,7 +56,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(292, 371);
+            this.ClientSize = new System.Drawing.Size(291, 371);
             this.Controls.Add(this.btnClient);
             this.Controls.Add(this.btnServer);
             this.KeyPreview = true;

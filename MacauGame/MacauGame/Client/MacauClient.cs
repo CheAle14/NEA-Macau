@@ -161,7 +161,7 @@ namespace MacauGame.Client
         private void WS_Client_OnOpen(object sender, EventArgs e)
         {
             Log.Info("Opened WS");
-            this.Invoke(new Action(() =>
+            var act = new Action(() =>
             {
                 Game = new GameClient(this);
                 Game.FormClosing += Game_FormClosing;
@@ -170,7 +170,11 @@ namespace MacauGame.Client
                 MacauGame.Menu.Instance.Hide();
                 this.Hide();
                 Send(new Packet(PacketId.GetGameInfo, JValue.CreateNull()));
-            }));
+            });
+            if (this.InvokeRequired)
+                this.Invoke(act);
+            else
+                act();
         }
 
         private void Game_FormClosing(object sender, FormClosingEventArgs e)

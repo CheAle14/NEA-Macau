@@ -1,6 +1,6 @@
 ﻿<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
-    <version>2.0.1</version>
+    <version>0.1.0</version>
     <authors>CheAle14</authors>
     <id>CheAle14.MacauGame</id>
     <title>MacauGame</title>
@@ -9,7 +9,7 @@
     <summary>Game for NEA</summary>
   </metadata>
   <files>
-    <file src="bin/*/*.exe" target="lib\net45\" exclude="*.pdb;*.nupkg;*.vshost.*"/>
-    <file src="bin/*/*.dll" target="lib\net45\" exclude="*.pdb;*.nupkg;*.vshost.*"/>
+    <file src="bin/Release/*/*.exe" target="lib\net45\" exclude="*.pdb;*.nupkg;*.vshost.*"/>
+    <file src="bin/Release/*/*.dll" target="lib\net45\" exclude="*.pdb;*.nupkg;*.vshost.*"/>
   </files>
 </package>
