@@ -231,6 +231,7 @@ namespace MacauGame.Server
             {
                 Log.Error("MasterlistStart", ex);
                 Log.Info("Server not hosted on ML.");
+                Log.Warn("Masterlist is disabled; IP of server is: " + Program.GetLocalIPAddress());
             }
 #else
             Log.Warn("Masterlist is disabled; IP of server is: " + Program.GetLocalIPAddress());

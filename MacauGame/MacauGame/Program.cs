@@ -119,8 +119,12 @@ namespace MacauGame
             {
                 Log.Info(updater.ApplicationName ?? "unknown app name");
                 //var updater = await mgr;
+#if IN_SCHOOL
+                var update = await updater.UpdateAppNoRegistry();
+#else
                 var update = await updater.UpdateApp();
-                if(update == null)
+#endif
+                if (update == null)
                 {
                     Log.Info("Running latest version");
                 } else
@@ -132,12 +136,22 @@ namespace MacauGame
             }
         }
 
-        static string shortcutLocation = @"D:\MacauGame.lnk";
+        static string[] getShortAttempts() 
+        {
+            var ls = new List<string>();
+            ls.Add(Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
+            ls.Add(@"D:\MacauGame.lnk");
+            ls.Add(@"H:\MacauGame.lnk");
+            ls.Add(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Downloads"));
+            return ls.ToArray();
+        }
+
 
         static void createShortcutAt(Version v, string location)
         {
             string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)
                 + @"\CheAle14\Update.exe";
+            Log.Warn($"Creating shortcut {location} -> {path}");
             var sl = new Squirrel.Shell.ShellLink()
             {
                 Target = path,
@@ -150,16 +164,24 @@ namespace MacauGame
 
         static void createShortCut(Version v)
         {
-            try
+            foreach(var path in getShortAttempts())
             {
-                createShortcutAt(v, Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
-            } catch
-            {
-                createShortcutAt(v, shortcutLocation);
+                try
+                {
+                    createShortcutAt(v, path);
+                } catch (Exception e)
+                {
+                    Log.Warn("Failed to create shortcut: " + e.ToString());
+                }
             }
         }
         static void removeShotCut(Version v)
         {
+            foreach(var path in getShortAttempts())
+            {
+                if (File.Exists(path))
+                    File.Delete(path);
+            }
         }
         static void onInitialInstall(Version v) => createShortCut(v);
         static void onAppUpdate(Version v) => createShortCut(v);
