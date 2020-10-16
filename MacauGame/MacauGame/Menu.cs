@@ -45,7 +45,7 @@ namespace MacauGame
 
         private void btnClient_Click(object sender, EventArgs e)
         {
-            update();
+            update(); // disables buttons if the forms are open
             if (Client != null) 
                 return;
             Client = new MacauClient();

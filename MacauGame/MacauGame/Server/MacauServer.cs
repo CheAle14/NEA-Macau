@@ -220,7 +220,7 @@ namespace MacauGame.Server
                     x.Game = Program.GAME_TYPE;
                     x.InternalIP = IPAddress.Parse(Program.GetLocalIPAddress());
                     x.ExternalIP = IPAddress.Parse(getIp());
-                    x.Name = "NEA - " + Environment.UserName;
+                    x.Name = "NEA2 - " + Environment.UserName;
                     x.Port = PORT;
                     x.IsPortForward = true;
                 }).Result;
