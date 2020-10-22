@@ -347,6 +347,7 @@ namespace MacauGame.Server
             Log.Trace(e.Data);
             try
             {
+                // e.Data is string;
                 var json = Newtonsoft.Json.Linq.JObject.Parse(e.Data);
                 var packet = new Packet(json);
                 Log.Debug($"Packet {packet.Sequence} responding to {packet.Response}; id {packet.Id}");
