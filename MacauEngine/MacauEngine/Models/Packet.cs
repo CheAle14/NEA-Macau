@@ -52,7 +52,6 @@ namespace MacauEngine.Models
 
         public PacketId Id { get; set; }
         public JToken Content { get; set; }
-
         public int Sequence { get; set; }
         public int? Response { get; set; }
     }
