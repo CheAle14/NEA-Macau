@@ -472,6 +472,13 @@ namespace MacauGame.Client
                 PlayerB.Set(shiftingToFront[2]);
                 PlayerC.Set(shiftingToFront[3]);
             }
+            if(int.TryParse(txtboxthing.Text, out int theNumber))
+            {
+
+            } else
+            {
+
+            }
             else if (shiftingToFront.Count == 5)
             {
                 PlayerD.Set(shiftingToFront[0]);

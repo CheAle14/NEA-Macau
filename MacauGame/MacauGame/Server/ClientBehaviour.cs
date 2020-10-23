@@ -25,6 +25,8 @@ namespace MacauGame.Server
 
         public bool VotedToStart = false;
 
+        public bool ForceUserAnyway = false;
+
         public bool IsCurrentPlayer => Server.CurrentWaitingOn != null && Server.CurrentWaitingOn.Id == Id;
 
         /// <summary>
@@ -187,7 +189,7 @@ namespace MacauGame.Server
                         found.Add(placing);
                     }
                     foreach (var x in found) Player.Hand.Remove(x);
-                    bool isActive = false;
+                    bool isActive = Server.Table.ShowingCards.Last().IsActive;
                     foreach (var card in found)
                     {
                         if (card.IsPickupCard || card.Value == MacauEngine.Models.Enums.Number.Four)

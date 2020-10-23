@@ -11,7 +11,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using MacauEngine.Models;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Squirrel;
 
 [assembly: System.Reflection.AssemblyMetadata("SquirrelAwareVersion", "1")]

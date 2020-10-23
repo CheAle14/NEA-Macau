@@ -47,7 +47,7 @@ namespace MacauEngine.Models
 
         public override string ToString()
         {
-            return ToJson().ToString(Newtonsoft.Json.Formatting.None);
+            return ToJson().ToString(Newtonsoft.Json.Formatting.Indented);
         }
 
         public PacketId Id { get; set; }

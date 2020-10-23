@@ -29,7 +29,7 @@ namespace MacauGame.Server
                     continue;
                 foreach (Number value in Enum.GetValues(typeof(Number)))
                 {
-                    if (value == Number.None)
+                    /*if (value == Number.None)
                         continue;
                     if (value == Number.Joker && house == Suit.Club)
                         continue;
@@ -41,8 +41,8 @@ namespace MacauGame.Server
                     } else if (house == Suit.Heart || house == Suit.Diamond)
                     {
                         nonShuffled.Add(new Card(house, Number.Joker));
-                    }
-                    //nonShuffled.Add(new Card(house, value));
+                    }*/
+                    nonShuffled.Add(new Card(house, value));
                 }
             }
             return nonShuffled;

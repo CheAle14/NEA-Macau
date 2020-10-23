@@ -1,4 +1,5 @@
 ﻿using MacauEngine.Models;
+using MacauEngine.Models.Enums;
 #if USING_MLAPI
 using MLAPI;
 using MLAPI.Classes.Server;
@@ -80,56 +81,54 @@ namespace MacauGame.Server
 
         public void StartGame()
         {
-            ClientBehaviour.lockGlobal(() =>
-            {
-                if (GameStarted)
-                    return;
-                GameStarted = true;
-                Table = new Table();
-                var topCard = Table.DrawCard();
-                if (topCard.Value == MacauEngine.Models.Enums.Number.Ace)
-                    topCard.AceSuit = topCard.House;
-                Table.ShowingCards.Add(topCard);
-                OrderedPlayers = Players.Select(x => x.Value).OrderBy(x => x.Player.Order).ToList();
-                Log.Info($"Starting game with {OrderedPlayers.Count}; table: {Table.ShowingCards[0]}");
-                CurrentWaitingOn = OrderedPlayers[0];
-                var placedPacket = new Packet(PacketId.NewCardsPlaced, new JArray() { Table.ShowingCards[0].ToJson() });
+            // Function is already called in lockGlobal context.
+            if (GameStarted)
+                return;
+            GameStarted = true;
+            Table = new Table();
+            var topCard = Table.DrawCard();
+            if (topCard.Value == MacauEngine.Models.Enums.Number.Ace)
+                topCard.AceSuit = topCard.House;
+            Table.ShowingCards.Add(topCard);
+            OrderedPlayers = Players.Select(x => x.Value).OrderBy(x => x.Player.Order).ToList();
+            Log.Info($"Starting game with {OrderedPlayers.Count}; table: {Table.ShowingCards[0]}");
+            CurrentWaitingOn = OrderedPlayers[0];
+            var placedPacket = new Packet(PacketId.NewCardsPlaced, new JArray() { Table.ShowingCards[0].ToJson() });
 
-                // We need to ensure all players know one another.
-                // And also know one another's order
-                int orderCount = 0;
-                var orderArray = new JArray();
-                foreach (var player in OrderedPlayers)
+            // We need to ensure all players know one another.
+            // And also know one another's order
+            int orderCount = 0;
+            var orderArray = new JArray();
+            foreach (var player in OrderedPlayers)
+            {
+                player.Player.Order = orderCount++;
+                orderArray.Add(player.Player.ToJson());
+            }
+            var orderObject = new JObject();
+            orderObject["players"] = orderArray;
+            var orderPacket = new Packet(PacketId.ProvideGameInfo, orderObject);
+            var waitingOnPacket = new Packet(PacketId.WaitingOn, JValue.FromObject(CurrentWaitingOn.Id));
+            foreach (var player in OrderedPlayers)
+            {
+                player.Player.Order = orderCount++;
+                player.Player.Hand = new List<Card>();
+                var jarray = new JArray();
+                for (int i = 0; i < 5; i++)
                 {
-                    player.Player.Order = orderCount++;
-                    orderArray.Add(player.Player.ToJson());
+                    player.Player.Hand.Add(Table.DrawCard());
+                    jarray.Add(player.Player.Hand[i].ToJson());
                 }
-                var orderObject = new JObject();
-                orderObject["players"] = orderArray;
-                var orderPacket = new Packet(PacketId.ProvideGameInfo, orderObject);
-                var waitingOnPacket = new Packet(PacketId.WaitingOn, JValue.FromObject(CurrentWaitingOn.Id));
-                foreach (var player in OrderedPlayers)
-                {
-                    player.Player.Order = orderCount++;
-                    player.Player.Hand = new List<Card>();
-                    var jarray = new JArray();
-                    for (int i = 0; i < 5; i++)
-                    {
-                        player.Player.Hand.Add(Table.DrawCard());
-                        jarray.Add(player.Player.Hand[i].ToJson());
-                    }
-                    player.Send(orderPacket);
-                    Thread.Sleep(500); // probably not needed, but we'll throw it in just in case.
-                    var packet = new Packet(PacketId.BulkPickupCards, jarray);
-                    player.Send(packet);
-                    Thread.Sleep(500);
-                    player.Send(placedPacket);
-                    Thread.Sleep(500);
-                    player.Send(waitingOnPacket);
-                    Thread.Sleep(500);
-                }
-                Log.Info($"Finished starting game, waiting on action from {CurrentWaitingOn.Name}");
-            });
+                player.Send(orderPacket);
+                Thread.Sleep(500); // probably not needed, but we'll throw it in just in case.
+                var packet = new Packet(PacketId.BulkPickupCards, jarray);
+                player.Send(packet);
+                Thread.Sleep(500);
+                player.Send(placedPacket);
+                Thread.Sleep(500);
+                player.Send(waitingOnPacket);
+                Thread.Sleep(500);
+            }
+            Log.Info($"Finished starting game, waiting on action from {CurrentWaitingOn.Name}");
         }
 
         ClientBehaviour getNextMatch(ClientBehaviour current, Func<Player, bool> predicate, int direction = 1)
@@ -153,24 +152,16 @@ namespace MacauGame.Server
 
         public void MoveNextPlayer()
         {
+            // From writeup - direction of next player is determined by whether the number of active kings is even or odd.
+            // If odd, then -1
+            // If even, then +1]
             var top = Table.ShowingCards.Last();
             if (top.Value == MacauEngine.Models.Enums.Number.King)
-            { // difficulty with Kings is that 
-                // they can be turned back to a person who is no longer playing.
-                int indexOfLastPlacer = OrderedPlayers.IndexOf(PreviousWaitingOn);
-                int indexOfCurrent = OrderedPlayers.IndexOf(CurrentWaitingOn);
-                int difference = indexOfCurrent - indexOfLastPlacer;
-                // eg, if LastPlacer as at index 0, and current at 1.
-                //      then the diff would be 1, which is positive.
-                //      hence we are ahead of them, so need to flip and look backwards.
-                // else, if LastPlacer is at index 1, and current is at 0
-                //      then the diff is -1, negative
-                //      hence we are behind, so need to look forwards
-                // the direction we look is the inverse sign of whatever the difference is (but only 1)
-                int direction = difference > 0 ? -1 : 1;
-                var nextResponder = getNextMatch(CurrentWaitingOn, x => !x.Finished, direction);
+            {
+                var howManyKings = Table.ShowingCards.Count(x => x.Value == Number.King && x.IsActive);
+                var direction = howManyKings % 2 == 0 ? 1 : -1;
                 PreviousWaitingOn = CurrentWaitingOn;
-                CurrentWaitingOn = nextResponder;
+                CurrentWaitingOn = getNextMatch(CurrentWaitingOn, x => !x.Finished, direction);
             }
             else
             {
@@ -220,7 +211,7 @@ namespace MacauGame.Server
                     x.Game = Program.GAME_TYPE;
                     x.InternalIP = IPAddress.Parse(Program.GetLocalIPAddress());
                     x.ExternalIP = IPAddress.Parse(getIp());
-                    x.Name = "NEA2 - " + Environment.UserName;
+                    x.Name = "This one - " + Environment.UserName;
                     x.Port = PORT;
                     x.IsPortForward = true;
                 }).Result;
