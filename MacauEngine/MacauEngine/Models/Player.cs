@@ -27,6 +27,9 @@ namespace MacauEngine.Models
 
         public bool Finished => Hand != null && Hand.Count == 0;
 
+        public static int _position = 0;
+        public int? FinishedPosition { get; set; }
+
         public JObject ToJson(bool includeHand)
         {
             var json = new JObject();

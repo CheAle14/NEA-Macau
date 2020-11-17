@@ -23,6 +23,7 @@ namespace MacauGame.Client
         public static string WaitingForId { get; set; }
 
         public bool IsCurrentPlayer => WaitingForId != null && SelfPlayer != null && WaitingForId == SelfPlayer.Id;
+        public bool HasFinished { get; set; }
 
         Table table = new Table();
         List<Player> Players = new List<Player>();
@@ -80,12 +81,16 @@ namespace MacauGame.Client
                 this.Invoke(new Action(() => UpdateUI()));
                 return;
             }
-            btnPlace.Visible = IsCurrentPlayer;
-            btnAltAction.Visible = IsCurrentPlayer;
+            btnPlace.Visible = !HasFinished && IsCurrentPlayer;
+            btnAltAction.Visible = !HasFinished && IsCurrentPlayer;
             //panelTable.HorizontalScroll.Maximum = panelTable.Width;
             //panelTable.AutoScrollPosition = new Point(panelTable.Width - 50, 0);
-            CanInteract = IsCurrentPlayer;
+            CanInteract = !HasFinished && IsCurrentPlayer;
             DisplayPlayers();
+            if (HasFinished)
+            {
+                MessageBox.Show($"Game has finished!", "Game Over", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
 
         public void HandleGamePacket(Packet packet)
@@ -101,7 +106,12 @@ namespace MacauGame.Client
                     Players.Add(player);
                 }
                 SelfPlayer = Players.FirstOrDefault(x => x.Id == Client.SELF_HWID);
-                this.Invoke(new Action(() => { DisplayPlayers(); }));
+                this.Invoke(new Action(() => 
+                { 
+                    DisplayPlayers();
+                    lblCardHint.Visible = true;
+                    lblTableEffect.Visible = true;
+                }));
             } else if (packet.Id == PacketId.BulkPickupCards)
             {
                 var jary = (JArray)packet.Content;
@@ -129,7 +139,7 @@ namespace MacauGame.Client
             } else if (packet.Id == PacketId.WaitingOn)
             {
                 var id = packet.Content.ToObject<string>();
-                WaitingForId = id; ;
+                WaitingForId = id;
                 UpdateUI();
             } else if (packet.Id == PacketId.ClearActive)
             {
@@ -147,6 +157,14 @@ namespace MacauGame.Client
                 {
                     DisplayPlayers();
                 }));
+            } else if (packet.Id == PacketId.PlayerFinished)
+            {
+                var who = packet.Content["id"].ToObject<string>();
+                var player = Players.First(x => x.Id == who);
+                player.Hand = new List<Card>();
+                player.FinishedPosition = System.Threading.Interlocked.Increment(ref Player._position);
+                HasFinished = packet.Content["game_ended"].ToObject<bool>();
+                this.Invoke(new Action(() => UpdateUI()));
             }
         }
 
@@ -404,9 +422,20 @@ namespace MacauGame.Client
             public void Set(Player player)
             {
                 Label.Visible = true;
-                Image.Visible = true;
+                Image.Visible = player.FinishedPosition.HasValue == false;
                 Label.Text = player.Name;
                 Label.ForeColor = player.Id == GameClient.WaitingForId ? Color.Red : Color.Black;
+                if(player.FinishedPosition.HasValue)
+                {
+                    int pos = player.FinishedPosition.Value;
+                    Label.Text = $"{pos}. {player.Name}";
+                    if (pos == 1)
+                        Label.ForeColor = Color.Gold;
+                    else if (pos == 2)
+                        Label.ForeColor = Color.Silver;
+                    else if (pos == 3)
+                        Label.ForeColor = Color.Brown;
+                }
             }
             public void Reset()
             {
@@ -471,13 +500,6 @@ namespace MacauGame.Client
                 PlayerA.Set(shiftingToFront[1]);
                 PlayerB.Set(shiftingToFront[2]);
                 PlayerC.Set(shiftingToFront[3]);
-            }
-            if(int.TryParse(txtboxthing.Text, out int theNumber))
-            {
-
-            } else
-            {
-
             }
             else if (shiftingToFront.Count == 5)
             {
@@ -587,7 +609,7 @@ namespace MacauGame.Client
         {
             if(response == null)
             {
-                var result = MessageBox.Show("Sever did not response", "Alternate Action", MessageBoxButtons.RetryCancel);
+                var result = MessageBox.Show("Sever did not respond", "Alternate Action", MessageBoxButtons.RetryCancel);
                 if(result == DialogResult.Retry)
                 {
                     Client.GetResponse(request, y => { handleAltAction(request, y); });

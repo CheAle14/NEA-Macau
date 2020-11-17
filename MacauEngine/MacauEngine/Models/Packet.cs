@@ -90,6 +90,7 @@ namespace MacauEngine.Models
         WaitingOn,
         NewCardsPlaced,
         NewPlayerJoined,
+        PlayerFinished,
         #endregion
     }
 }

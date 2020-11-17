@@ -218,7 +218,17 @@ namespace MacauGame.Server
                         Log.Info($"{Name} has finished");
                     }
                     Server.MoveNextPlayer();
-                    brodcastWaitingOn();
+                    bool gameHasEnded = Server.Players.Count(x => !x.Value.Player.Finished) <= 1;
+                    if(Player.Finished)
+                    {
+                        var jobj = new JObject();
+                        jobj["id"] = Player.Id;
+                        jobj["game_ended"] = gameHasEnded;
+                        var pong = new Packet(PacketId.PlayerFinished, jobj);
+                        Sessions.Broadcast(pong.ToString());
+                    }
+                    if(!gameHasEnded)
+                        brodcastWaitingOn(); // if game has ended, client will handle that in packet above.
                     //Server.CurrentWaitingOn.SendWaitingOn();
                 });
             } else if (packet.Id == PacketId.VoteStartGame)

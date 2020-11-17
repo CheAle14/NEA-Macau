@@ -14,9 +14,7 @@ using System.Windows.Forms;
 using MacauEngine.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Squirrel;
 
-[assembly: System.Reflection.AssemblyMetadata("SquirrelAwareVersion", "1")]
 namespace MacauGame
 {
     internal class Program
@@ -64,7 +62,6 @@ namespace MacauGame
             Console.WriteLine("Debug Console");
 #endif
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-            SquirrelAwareApp.HandleEvents(onInitialInstall, onAppUpdate, onAppObsoleted, onAppUninstall, onFirstRun);
 #if USING_MLAPI
             MLAPI.MasterList.Log = (msg) =>
             {
@@ -73,14 +70,6 @@ namespace MacauGame
             };
 #endif
             RND = new Random();
-#if DEBUG
-            Log.Info($"Skipping version checks due to debug configuration.");
-#else
-            Log.Info($"Started, checking updates");
-            Log.Info("Other things");
-            Main().GetAwaiter().GetResult();
-            Log.Info("Other things2");
-#endif
             LoadConfig();
             var menu = new Menu();
             menu.FormClosing += Menu_FormClosing;
@@ -90,112 +79,11 @@ namespace MacauGame
 #endif
         }
 
-        private static System.Reflection.Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
-        {
-            Log.Info($"Trying to find assembly '{args.Name}'");
-            if(args.Name == "Interop.IWshRuntimeLibrary")
-            {
-                var installDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CheAle14");
-                var folders = Directory.GetDirectories(installDir, "app-*");
-                var latest = folders.OrderBy(x => x).First();
-                var exeLocation = Path.Combine(latest, "Interop.IWshRuntimeLibrary.dll");
-                Log.Info($"Attempting to load '{exeLocation}'");
-                return Assembly.LoadFrom(exeLocation);
-            }
-            return null;
-        }
-
         private static void Menu_FormClosing(object sender, FormClosingEventArgs e)
         {
             SaveConfig();
         }
 
-        static async Task<UpdateManager> getMgr()
-        {
-            return new UpdateManager("https://masterlist.uk.ms/nea", "MacauGame", ".");
-        }
-
-        static async Task Main()
-        {
-            using (var updater = await getMgr())
-            {
-                Log.Info(updater.ApplicationName ?? "unknown app name");
-                //var updater = await mgr;
-#if IN_SCHOOL
-                var update = await updater.UpdateAppNoRegistry();
-#else
-                var update = await updater.UpdateApp();
-#endif
-                if (update == null)
-                {
-                    Log.Info("Running latest version");
-                } else
-                {
-                    VERSION = update.Version.Version;
-                    Log.Info($"Running version {(update?.Version?.ToString() ?? "error happened")}");
-                    createShortCut(VERSION);
-                }
-            }
-        }
-
-        static string[] getShortAttempts() 
-        {
-            var ls = new List<string>();
-            ls.Add(Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
-            ls.Add(@"D:\MacauGame.lnk");
-            ls.Add(@"H:\MacauGame.lnk");
-            ls.Add(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Downloads"));
-            return ls.ToArray();
-        }
-
-
-        static void createShortcutAt(Version v, string location)
-        {
-            string path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)
-                + @"\CheAle14\Update.exe";
-            Log.Warn($"Creating shortcut {location} -> {path}");
-            var sl = new Squirrel.Shell.ShellLink()
-            {
-                Target = path,
-                WorkingDirectory = Path.GetDirectoryName(path) + $"\\app-{v.Major}.{v.Minor}.{v.Build}",
-                Arguments = "--processStart MacauGame.exe",
-                Description = "Shortcut to launch NEA Macau Game.",
-            };
-            sl.Save(location);
-        }
-
-        static void createShortCut(Version v)
-        {
-            foreach(var path in getShortAttempts())
-            {
-                try
-                {
-                    createShortcutAt(v, path);
-                } catch (Exception e)
-                {
-                    Log.Warn("Failed to create shortcut: " + e.ToString());
-                }
-            }
-        }
-        static void removeShotCut(Version v)
-        {
-            foreach(var path in getShortAttempts())
-            {
-                if (File.Exists(path))
-                    File.Delete(path);
-            }
-        }
-        static void onInitialInstall(Version v) => createShortCut(v);
-        static void onAppUpdate(Version v) => createShortCut(v);
-        static void onAppUninstall(Version v) => removeShotCut(v);
-        static void onFirstRun()
-        {
-
-        }
-
-        static void onAppObsoleted(Version v)
-        {
-        }
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             Log.Error($"UnhandledEx", (Exception)e.ExceptionObject);
