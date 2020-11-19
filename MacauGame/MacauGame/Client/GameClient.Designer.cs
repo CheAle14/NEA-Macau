@@ -186,6 +186,7 @@
             this.lblCardHint.Text = "Placed cards\r\nTop on right";
             this.lblCardHint.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.lblCardHint.Visible = false;
+            this.lblCardHint.Click += new System.EventHandler(this.lblCardHint_Click);
             // 
             // lblTableEffect
             // 
@@ -264,6 +265,7 @@
             this.Name = "GameClient";
             this.Text = "GameClient";
             this.Load += new System.EventHandler(this.GameClient_Load);
+            this.Resize += new System.EventHandler(this.GameClient_Resize);
             ((System.ComponentModel.ISupportInitialize)(this.pbPlayerA)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbPlayerD)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbPlayerB)).EndInit();

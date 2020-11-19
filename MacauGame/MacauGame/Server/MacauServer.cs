@@ -93,7 +93,6 @@ namespace MacauGame.Server
             OrderedPlayers = Players.Select(x => x.Value).OrderBy(x => x.Player.Order).ToList();
             Log.Info($"Starting game with {OrderedPlayers.Count}; table: {Table.ShowingCards[0]}");
             CurrentWaitingOn = OrderedPlayers[0];
-            var placedPacket = new Packet(PacketId.NewCardsPlaced, new JArray() { Table.ShowingCards[0].ToJson() });
 
             // We need to ensure all players know one another.
             // And also know one another's order
@@ -104,28 +103,15 @@ namespace MacauGame.Server
                 player.Player.Order = orderCount++;
                 orderArray.Add(player.Player.ToJson());
             }
-            var orderObject = new JObject();
-            orderObject["players"] = orderArray;
-            var orderPacket = new Packet(PacketId.ProvideGameInfo, orderObject);
-            var waitingOnPacket = new Packet(PacketId.WaitingOn, JValue.FromObject(CurrentWaitingOn.Id));
             foreach (var player in OrderedPlayers)
             {
                 player.Player.Order = orderCount++;
                 player.Player.Hand = new List<Card>();
-                var jarray = new JArray();
                 for (int i = 0; i < 5; i++)
                 {
                     player.Player.Hand.Add(Table.DrawCard());
-                    jarray.Add(player.Player.Hand[i].ToJson());
                 }
-                player.Send(orderPacket);
-                Thread.Sleep(50); // probably not needed, but we'll throw it in just in case.
-                var packet = new Packet(PacketId.BulkPickupCards, jarray);
-                player.Send(packet);
-                Thread.Sleep(50);
-                player.Send(placedPacket);
-                Thread.Sleep(50);
-                player.Send(waitingOnPacket);
+                player.SendGameInfo(false);
                 Thread.Sleep(500);
             }
             Log.Info($"Finished starting game, waiting on action from {CurrentWaitingOn.Name}");

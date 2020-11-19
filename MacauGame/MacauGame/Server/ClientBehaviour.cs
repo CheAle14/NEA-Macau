@@ -127,6 +127,36 @@ namespace MacauGame.Server
             Send(packet.ToString());
         }
 
+        public void SendGameInfo(bool lockNeeded = true)
+        {
+            var jArray = new JArray();
+            foreach (var player in Server.OrderedPlayers)
+                jArray.Add(player.Player.ToJson(player.Id == this.Id));
+            var jobj = new JObject();
+            jobj["players"] = jArray;
+            if (Server.GameStarted)
+            {
+                Action action = () => 
+                {
+                    var state = new JObject();
+                    state["waiting"] = Server.CurrentWaitingOn.Id;
+                    var table = new JArray();
+                    for (int i = 0; i < Server.Table.ShowingCards.Count; i++)
+                    {
+                        var crd = Server.Table.ShowingCards[i];
+                        table.Add(crd.ToJson());
+                    }
+                    state["table"] = table;
+                    jobj["state"] = state;
+                };
+                if (lockNeeded)
+                    lockGlobal(action);
+                else
+                    action();
+            }
+            Send(new Packet(PacketId.ProvideGameInfo, jobj));
+        }
+
         void brodcastWaitingOn()
         {
             var pck = new Packet(PacketId.WaitingOn, JValue.FromObject(Server.CurrentWaitingOn.Id));
@@ -216,6 +246,9 @@ namespace MacauGame.Server
                     {
                         //Server.OrderedPlayers.Remove(this);
                         Log.Info($"{Name} has finished");
+                    } else
+                    {
+                        Log.Warn($"{Name} has {Player.Hand.Count} cards remaining: {string.Join(", ", Player.Hand.Select(x => x.ToString()))}");
                     }
                     Server.MoveNextPlayer();
                     bool gameHasEnded = Server.Players.Count(x => !x.Value.Player.Finished) <= 1;
@@ -242,8 +275,9 @@ namespace MacauGame.Server
                 {
                     VotedToStart = true;
                     int count = Server.Players.Values.Count(x => x.VotedToStart);
-                    Log.Info($"{Name} has voted to start: {count}/{Server.Players.Count}");
-                    if(count >= Server.Players.Count && Server.Players.Count > 2)
+                    int minimum = Math.Min(2, Server.Players.Count);
+                    Log.Info($"{Name} has voted to start: {count}/{minimum}");
+                    if(count >= Server.Players.Count && Server.Players.Count >= minimum)
                     {
                         Server.StartGame();
                     }
@@ -333,12 +367,7 @@ namespace MacauGame.Server
                 //Server.CurrentWaitingOn.SendWaitingOn();
             } else if (packet.Id == PacketId.GetGameInfo)
             {
-                var jArray = new JArray();
-                foreach (var player in Server.OrderedPlayers)
-                    jArray.Add(player.Player.ToJson());
-                var jobj = new JObject();
-                jobj["players"] = jArray;
-                Send(new Packet(PacketId.ProvideGameInfo, jobj));
+                SendGameInfo();
             }
             else
             {
@@ -413,7 +442,7 @@ namespace MacauGame.Server
                         existing.Close(CloseStatusCode.Normal, "New client is taking over.");
                     } catch { }
                     Server.Players[hwid] = this;
-                    this.Player.Order = existing.Player.Order;
+                    this.Player = existing.Player;
                 } else
                 {
                     Server.Players[hwid] = this;

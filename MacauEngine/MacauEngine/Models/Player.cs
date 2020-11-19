@@ -37,9 +37,11 @@ namespace MacauEngine.Models
             json["name"] = Name;
             json["order"] = Order;
             if (includeHand)
-                json["hand"] = new JArray(Hand);
+                json["hand"] = Hand == null 
+                    ? new JArray(new List<Card>()) 
+                    : new JArray(Hand.Select(x => x.ToJson()));
             else
-                json["hand"] = new JArray(new List<Card>());
+                json["hand"] = null;
             if (MissingGoes > 0)
                 json["miss"] = MissingGoes;
             return json;
@@ -50,7 +52,14 @@ namespace MacauEngine.Models
         {
             Id = json["id"].ToObject<string>();
             Name = json["name"].ToObject<string>();
-            Hand = json["hand"].ToObject<List<Card>>();
+            var hand = json["hand"];
+            if(hand is JArray array)
+            {
+                Hand = array.Select(x => new Card((JObject)x)).ToList();
+            } else
+            {
+                Hand = null;
+            }
             if (json.TryGetValue("miss", out var tkn))
                 MissingGoes = tkn.ToObject<int>();
         }

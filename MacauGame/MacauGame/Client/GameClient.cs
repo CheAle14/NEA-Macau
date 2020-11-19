@@ -86,6 +86,10 @@ namespace MacauGame.Client
             //panelTable.HorizontalScroll.Maximum = panelTable.Width;
             //panelTable.AutoScrollPosition = new Point(panelTable.Width - 50, 0);
             CanInteract = !HasFinished && IsCurrentPlayer;
+            if (this.Focused == false && CanInteract)
+                FlashWindow.Flash(this);
+            else
+                FlashWindow.Flash(this, 1);
             DisplayPlayers();
             if (HasFinished)
             {
@@ -106,15 +110,35 @@ namespace MacauGame.Client
                     Players.Add(player);
                 }
                 SelfPlayer = Players.FirstOrDefault(x => x.Id == Client.SELF_HWID);
+                var state = jobj["state"];
+                if(state != null)
+                {
+                    WaitingForId = state["waiting"].ToObject<string>();
+                    var _table = state["table"] as JArray;
+                    table.ShowingCards = new List<Card>();
+                    foreach(var x in _table)
+                    {
+                        table.ShowingCards.Add(new Card((JObject)x));
+                    }
+                }
                 this.Invoke(new Action(() =>
                 {
-                    DisplayPlayers();
-                    lblCardHint.Visible = true;
-                    lblTableEffect.Visible = true;
+                    if(state == null)
+                    {
+                        DisplayPlayers();
+                    } else
+                    {
+                        UpdateUI();
+                        DisplayHand();
+                        DisplayTableCards();
+                        lblCardHint.Visible = true;
+                        lblTableEffect.Visible = true;
+                    }
                 }));
             } else if (packet.Id == PacketId.BulkPickupCards)
             {
                 var jary = (JArray)packet.Content;
+                SelfPlayer.Hand = SelfPlayer.Hand ?? new List<Card>();
                 foreach (JObject jobj in jary)
                 {
                     var card = new Card(jobj);
@@ -151,6 +175,7 @@ namespace MacauGame.Client
             } else if (packet.Id == PacketId.NewPlayerJoined)
             {
                 var player = new Player((JObject)packet.Content);
+                Players.RemoveAll(x => x.Id == player.Id);
                 Players.Add(player);
                 Players = Players.OrderBy(x => x.Order).ToList();
                 this.Invoke(new Action(() =>
@@ -329,6 +354,7 @@ namespace MacauGame.Client
             panelTable.Controls.Clear();
             if (table.ShowingCards.Count == 0)
                 return;
+            btnVoteStart.Hide();
             var size = new Size(101, 165);
             int gap = (int)(size.Width * getGapModifier(table.ShowingCards.Count)); // have some overlap to signify top/bottom
             int maxX = (gap * table.ShowingCards.Count) + 3 + 3;
@@ -361,7 +387,6 @@ namespace MacauGame.Client
             panelTable.HorizontalScroll.Value = panelTable.HorizontalScroll.Maximum;
             //panelTable.HorizontalScroll.Maximum = panelTable.Width;
         }
-
         #endregion
 
         private void Pb_Click(object sender, EventArgs e)
@@ -385,6 +410,18 @@ namespace MacauGame.Client
             //panelTable.MouseWheel += PanelTable_MouseWheel;
             //panelTable.HorizontalScroll.Maximum = panelTable.Width;
             //panelTable.AutoScrollPosition = new Point(0, 0);
+
+            foreach(Control control in this.Controls)
+            {
+                if(control is Panel pnl)
+                {
+                    widthRatios[control] = control.Width / (double)this.Width;
+                } else if(control.Name.Contains("PlayerD") == false)
+                {
+                    locationRatios[control] = control.Location.X / (double)this.Width;
+                }
+            }
+
             UpdateUI();
         }
 
@@ -624,13 +661,45 @@ namespace MacauGame.Client
             }
             if(response.Id == PacketId.Error)
             {
-                MessageBox.Show(response.Content.ToObject<string>(), "Alternate Action", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var reason = response.Content.ToObject<string>();
+                MessageBox.Show(reason, "Alternate Action", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                if(reason.Contains("perhaps you meant"))
+                {
+                    Send(new Packet(PacketId.GetGameInfo, JValue.CreateNull()));
+                }
                 CanInteract = true;
             }
             if(response.Id == PacketId.BulkPickupCards)
             {
                 HandleGamePacket(response);
             }
+        }
+
+
+        #region Resizing
+        Dictionary<Control, double> locationRatios = new Dictionary<Control, double>();
+        Dictionary<Control, double> widthRatios = new Dictionary<Control, double>();
+        private void GameClient_Resize(object sender, EventArgs e)
+        {
+            foreach(var keypair in locationRatios)
+            {
+                var control = keypair.Key;
+                var perc = keypair.Value;
+                int x = (int)Math.Round(this.Width * perc);
+                control.Location = new Point(x, control.Location.Y);
+            }
+            foreach(var keypair in widthRatios)
+            {
+                var control = keypair.Key;
+                var perc = keypair.Value;
+                int width = (int)Math.Round(this.Width * perc);
+                control.Width = width;
+            }
+        }
+        #endregion
+        private void lblCardHint_Click(object sender, EventArgs e)
+        {
+            Send(new Packet(PacketId.GetGameInfo, JValue.CreateNull()));
         }
     }
 }

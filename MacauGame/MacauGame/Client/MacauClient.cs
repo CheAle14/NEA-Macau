@@ -94,6 +94,7 @@ namespace MacauGame.Client
             {
                 txtIP.Tag = btn.Value;
                 txtIP.Text = btn.Value.ToString();
+                btnConnect.PerformClick();
             }
         }
 
@@ -122,6 +123,7 @@ namespace MacauGame.Client
 #if DEBUG
             SELF_HWID = UHWID.UHWIDEngine.AdvancedUid + txtName.Text;
 #endif
+            waitingForResponse = new Dictionary<int, AwaitedPacket>();
             Program.Configuration.Name = txtName.Text;
             Program.Configuration.IP = txtIP.Text;
             WS_Client = new WebSocket($"ws://{ipad}:{Server.MacauServer.PORT}/" +
@@ -151,6 +153,10 @@ namespace MacauGame.Client
         private void WS_Client_OnClose(object sender, CloseEventArgs e)
         {
             Log.Info($"Closed: {e.Code} {e.Reason}");
+            MessageBox.Show($"Connection with server lost or closed - {e.Code} {e.Reason}");
+            Game?.Close();
+            Game = null;
+            WS_Client = null;
         }
 
         private void WS_Client_OnError(object sender, ErrorEventArgs e)
