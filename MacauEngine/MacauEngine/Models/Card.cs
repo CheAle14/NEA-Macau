@@ -109,7 +109,7 @@ namespace MacauEngine.Models
             json["value"] = JValue.FromObject(Value);
             if(AceSuit.HasValue)
                 json["suit"] = JValue.FromObject(AceSuit.Value);
-            if(IsActive)
+            if(IsActive || AceSuit.HasValue)
                 json["active"] = IsActive;
             return json;
         }

@@ -119,12 +119,12 @@ namespace MacauGame.Server
                     jarray.Add(player.Player.Hand[i].ToJson());
                 }
                 player.Send(orderPacket);
-                Thread.Sleep(500); // probably not needed, but we'll throw it in just in case.
+                Thread.Sleep(50); // probably not needed, but we'll throw it in just in case.
                 var packet = new Packet(PacketId.BulkPickupCards, jarray);
                 player.Send(packet);
-                Thread.Sleep(500);
+                Thread.Sleep(50);
                 player.Send(placedPacket);
-                Thread.Sleep(500);
+                Thread.Sleep(50);
                 player.Send(waitingOnPacket);
                 Thread.Sleep(500);
             }
@@ -150,6 +150,30 @@ namespace MacauGame.Server
             } while (true);
         }
 
+        bool nextPlayerPredicate(Player player)
+        {
+            return player.Finished == false;
+        }
+
+        void MoveNextWithMisses(int direction)
+        {
+            do
+            {
+                PreviousWaitingOn = CurrentWaitingOn;
+                CurrentWaitingOn = getNextMatch(CurrentWaitingOn, x => !x.Finished, direction);
+                if (CurrentWaitingOn == null)
+                    break;
+                if(CurrentWaitingOn.Player.MissingGoes > 0)
+                {
+                    CurrentWaitingOn.Player.MissingGoes--;
+                    var msg = new Packet(PacketId.Message, JValue.FromObject($"{CurrentWaitingOn.Player.Name} misses their turn; remaining: {CurrentWaitingOn.Player.MissingGoes}"));
+                    foreach (var player in Players)
+                        player.Value.Send(msg);
+                    // TODO: miss turns must be >0 in order for loop to occur again
+                }
+            } while (CurrentWaitingOn.Player.MissingGoes > 0);
+        }
+
         public void MoveNextPlayer()
         {
             // From writeup - direction of next player is determined by whether the number of active kings is even or odd.
@@ -160,13 +184,12 @@ namespace MacauGame.Server
             {
                 var howManyKings = Table.ShowingCards.Count(x => x.Value == Number.King && x.IsActive);
                 var direction = howManyKings % 2 == 0 ? 1 : -1;
-                PreviousWaitingOn = CurrentWaitingOn;
-                CurrentWaitingOn = getNextMatch(CurrentWaitingOn, x => !x.Finished, direction);
+
+                MoveNextWithMisses(direction);
             }
             else
             {
-                PreviousWaitingOn = CurrentWaitingOn;
-                CurrentWaitingOn = getNextMatch(CurrentWaitingOn, x => !x.Finished);
+                MoveNextWithMisses(1);
             }
         }
 

@@ -243,7 +243,7 @@ namespace MacauGame.Server
                     VotedToStart = true;
                     int count = Server.Players.Values.Count(x => x.VotedToStart);
                     Log.Info($"{Name} has voted to start: {count}/{Server.Players.Count}");
-                    if(count >= Server.Players.Count)
+                    if(count >= Server.Players.Count && Server.Players.Count > 2)
                     {
                         Server.StartGame();
                     }
@@ -387,6 +387,11 @@ namespace MacauGame.Server
             }
         }
 
+        public void Close(CloseStatusCode code, string reason)
+        {
+            Context.WebSocket.Close(code, reason);
+        }
+
         protected override void OnOpen()
         {
             Log.Debug($"Opened new connection");
@@ -401,13 +406,19 @@ namespace MacauGame.Server
                     return;
                 }
                 this.Player = new Player(hwid, name);
-                if (Server.Players.ContainsKey(hwid))
+                if (Server.Players.TryGetValue(hwid, out var existing))
                 {
-                    Context.WebSocket.Close(CloseStatusCode.Abnormal, "Conflict -- player already exists");
-                    return;
+                    try
+                    {
+                        existing.Close(CloseStatusCode.Normal, "New client is taking over.");
+                    } catch { }
+                    Server.Players[hwid] = this;
+                    this.Player.Order = existing.Player.Order;
+                } else
+                {
+                    Server.Players[hwid] = this;
+                    this.Player.Order = Server.Players.Count;
                 }
-                Server.Players[hwid] = this;
-                this.Player.Order = Server.Players.Count;
                 Server.OrderedPlayers = Server.Players.Values.OrderBy(x => x.Player.Order).ToList();
                 Log.Info($"New Player has joined: {Name}, {Id}");
                 var newPlayer = new Packet(PacketId.NewPlayerJoined, this.Player.ToJson());

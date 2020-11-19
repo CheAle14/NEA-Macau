@@ -95,19 +95,19 @@ namespace MacauGame.Client
 
         public void HandleGamePacket(Packet packet)
         {
-            if(packet.Id == PacketId.ProvideGameInfo)
+            if (packet.Id == PacketId.ProvideGameInfo)
             {
                 var jobj = packet.Content;
                 var playerArray = (JArray)jobj["players"];
                 Players = new List<Player>();
-                foreach(var plyObj in playerArray)
+                foreach (var plyObj in playerArray)
                 {
                     var player = new Player((JObject)plyObj);
                     Players.Add(player);
                 }
                 SelfPlayer = Players.FirstOrDefault(x => x.Id == Client.SELF_HWID);
-                this.Invoke(new Action(() => 
-                { 
+                this.Invoke(new Action(() =>
+                {
                     DisplayPlayers();
                     lblCardHint.Visible = true;
                     lblTableEffect.Visible = true;
@@ -115,7 +115,7 @@ namespace MacauGame.Client
             } else if (packet.Id == PacketId.BulkPickupCards)
             {
                 var jary = (JArray)packet.Content;
-                foreach(JObject jobj in jary)
+                foreach (JObject jobj in jary)
                 {
                     var card = new Card(jobj);
                     SelfPlayer.Hand.Add(card);
@@ -127,7 +127,7 @@ namespace MacauGame.Client
             } else if (packet.Id == PacketId.NewCardsPlaced)
             {
                 var jary = (JArray)packet.Content;
-                foreach(JObject jobj in jary)
+                foreach (JObject jobj in jary)
                 {
                     var card = new Card(jobj);
                     table.ShowingCards.Add(card);
@@ -148,7 +148,7 @@ namespace MacauGame.Client
                 {
                     DisplayTableCards();
                 }));
-            } else if(packet.Id == PacketId.NewPlayerJoined)
+            } else if (packet.Id == PacketId.NewPlayerJoined)
             {
                 var player = new Player((JObject)packet.Content);
                 Players.Add(player);
@@ -165,6 +165,9 @@ namespace MacauGame.Client
                 player.FinishedPosition = System.Threading.Interlocked.Increment(ref Player._position);
                 HasFinished = packet.Content["game_ended"].ToObject<bool>();
                 this.Invoke(new Action(() => UpdateUI()));
+            } else if (packet.Id == PacketId.Message)
+            {
+                MessageBox.Show(packet.Content.ToObject<string>(), "Message", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -256,7 +259,7 @@ namespace MacauGame.Client
         {
             if (cards.Count == 0)
                 return "No cards placed";
-            var active = cards.Where(x => x.IsActive).ToList();
+            var active = cards.Where(x => x.IsActive || x.AceSuit.HasValue).ToList();
             if (active.Count == 0)
                 return "None.";
             int pickup = 0;
@@ -355,6 +358,7 @@ namespace MacauGame.Client
             btnAltAction.Text = effect.StartsWith("Miss")
                 ? "Skip Turn"
                 : "Pickup";
+            panelTable.HorizontalScroll.Value = panelTable.HorizontalScroll.Maximum;
             //panelTable.HorizontalScroll.Maximum = panelTable.Width;
         }
 
@@ -386,6 +390,7 @@ namespace MacauGame.Client
 
         private void pbPlayerA_Click(object sender, EventArgs e)
         {
+            return;
 #if DEBUG
             var card = table.DrawCard();
             if (card.IsPickupCard || card.Value == Number.Four)
@@ -514,6 +519,7 @@ namespace MacauGame.Client
 
         private void pbPlayerB_Click(object sender, EventArgs e)
         {
+            return;
             SelfPlayer = SelfPlayer ?? new Player("aaaa", "Alex");
             SelfPlayer.Hand = SelfPlayer.Hand ?? new List<Card>();
             SelfPlayer.Hand.Add(table.DrawCard());
