@@ -141,9 +141,18 @@ namespace MacauEngine.Models
             return false;
         }
 
+        string baseText()
+        {
+            if (Value == Number.Joker)
+                return (((int)House & 0b1_00) == 0) // check red
+                    ? "Red Joker"
+                    : "Black Joker";
+            return $"{Value} of {House}s";
+        }
+
         public override string ToString()
         {
-            return $"{House}{Value}" + (IsActive ? "(A)" : "");
+            return baseText() + (IsActive ? "(A)" : "");
         }
     }
 }

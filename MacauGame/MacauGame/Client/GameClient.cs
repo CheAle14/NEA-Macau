@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static MacauGame.RichTextBoxExtensions;
 
 namespace MacauGame.Client
 {
@@ -131,6 +132,8 @@ namespace MacauGame.Client
                         UpdateUI();
                         DisplayHand();
                         DisplayTableCards();
+                        if (lblCardHint.Visible == false)
+                            Event("* Game has begun *", Color.Purple);
                         lblCardHint.Visible = true;
                         lblTableEffect.Visible = true;
                     }
@@ -139,31 +142,39 @@ namespace MacauGame.Client
             {
                 var jary = (JArray)packet.Content;
                 SelfPlayer.Hand = SelfPlayer.Hand ?? new List<Card>();
+                string log = "* Picked up cards:";
                 foreach (JObject jobj in jary)
                 {
                     var card = new Card(jobj);
                     SelfPlayer.Hand.Add(card);
+                    log += $"\r\n * {card}";
                 }
                 this.Invoke(new Action(() =>
                 {
                     DisplayHand();
+                    Event(log, Color.Red);
                 }));
             } else if (packet.Id == PacketId.NewCardsPlaced)
             {
                 var jary = (JArray)packet.Content;
+                string log = "* Cards placed down:";
                 foreach (JObject jobj in jary)
                 {
                     var card = new Card(jobj);
                     table.ShowingCards.Add(card);
+                    log += $"\r\n * {card}";
                 }
                 this.Invoke(new Action(() =>
                 {
                     DisplayTableCards();
+                    Event(log, Color.Blue);
                 }));
             } else if (packet.Id == PacketId.WaitingOn)
             {
                 var id = packet.Content.ToObject<string>();
                 WaitingForId = id;
+                var player = Players.FirstOrDefault(x => x.Id == WaitingForId);
+                Event($"Now waiting for {(player?.Name ?? WaitingForId)}", Color.Purple);
                 UpdateUI();
             } else if (packet.Id == PacketId.ClearActive)
             {
@@ -175,11 +186,13 @@ namespace MacauGame.Client
             } else if (packet.Id == PacketId.NewPlayerJoined)
             {
                 var player = new Player((JObject)packet.Content);
-                Players.RemoveAll(x => x.Id == player.Id);
+                var existing = Players.RemoveAll(x => x.Id == player.Id) > 0;
                 Players.Add(player);
                 Players = Players.OrderBy(x => x.Order).ToList();
+                var action = existing ? "reconnected" : "connected";
                 this.Invoke(new Action(() =>
                 {
+                    Event($"* {player.Name} {action}", Color.Purple);
                     DisplayPlayers();
                 }));
             } else if (packet.Id == PacketId.PlayerFinished)
@@ -189,10 +202,14 @@ namespace MacauGame.Client
                 player.Hand = new List<Card>();
                 player.FinishedPosition = System.Threading.Interlocked.Increment(ref Player._position);
                 HasFinished = packet.Content["game_ended"].ToObject<bool>();
-                this.Invoke(new Action(() => UpdateUI()));
+                this.Invoke(new Action(() =>
+                {
+                    Event($"* {player.Name} has finished in position {player.FinishedPosition.Value}", Color.Purple, FontStyle.Bold);
+                    UpdateUI();
+                }));
             } else if (packet.Id == PacketId.Message)
             {
-                MessageBox.Show(packet.Content.ToObject<string>(), "Message", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Event($"> {packet.Content.ToObject<string>()}");
             }
         }
 
@@ -397,6 +414,16 @@ namespace MacauGame.Client
             }
         }
 
+        public void Event(string text, Color? color = null, FontStyle style = FontStyle.Regular)
+        {
+            if(this.InvokeRequired)
+            {
+                this.Invoke(new Action(() => Event(text, color, style)));
+                return;
+            }
+            RichTextBoxExtensions.AppendText(eventLog, text + "\r\n", color.GetValueOrDefault(Color.Black), style);
+        }
+
         private void GameClient_Load(object sender, EventArgs e)
         {
 #if DEBUG
@@ -416,7 +443,7 @@ namespace MacauGame.Client
                 if(control is Panel pnl)
                 {
                     widthRatios[control] = control.Width / (double)this.Width;
-                } else if(control.Name.Contains("PlayerD") == false)
+                } else if(control.Name == eventLog.Name || control.Name.Contains("PlayerD") == false)
                 {
                     locationRatios[control] = control.Location.X / (double)this.Width;
                 }
