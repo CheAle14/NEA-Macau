@@ -154,7 +154,8 @@ namespace MacauGame.Client
         {
             Log.Info($"Closed: {e.Code} {e.Reason}");
             MessageBox.Show($"Connection with server lost or closed - {e.Code} {e.Reason}");
-            Game?.Close();
+            if (Game != null && this.InvokeRequired)
+                this.Invoke(new Action(() => Game?.Close()));
             Game = null;
             WS_Client = null;
         }

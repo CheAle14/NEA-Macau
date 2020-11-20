@@ -25,6 +25,8 @@ namespace MacauEngine.Models
 
         public List<Card> Hand { get; set; }
 
+        public bool VotedToStart { get; set; }
+
         public bool Finished => Hand != null && Hand.Count == 0;
 
         public static int _position = 0;
@@ -44,6 +46,7 @@ namespace MacauEngine.Models
                 json["hand"] = null;
             if (MissingGoes > 0)
                 json["miss"] = MissingGoes;
+            json["start"] = VotedToStart;
             return json;
         }
         public override JObject ToJson() => ToJson(false);

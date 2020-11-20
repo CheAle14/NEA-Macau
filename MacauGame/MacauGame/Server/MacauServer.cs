@@ -145,18 +145,33 @@ namespace MacauGame.Server
         {
             do
             {
+                if(CurrentWaitingOn.Player.MissingGoes > 0)
+                { // 5d
+                    CurrentWaitingOn.Player.MissingGoes--;
+                    var pickupAmount = Table.ShowingCards.Where(x => x.IsActive && x.IsPickupCard).Sum(x => x.PickupValue);
+                    if(pickupAmount > 0)
+                    {
+                        while(pickupAmount > 0 && Table.Deck.Count > 0)
+                        {
+                            var crd = Table.DrawCard();
+                            CurrentWaitingOn.Player.Hand.Add(crd);
+                            pickupAmount--;
+                        }
+                        var packet = new Packet(PacketId.ClearActive, JValue.CreateNull());
+                        foreach (var player in Players)
+                            player.Value.Send(packet);
+                        foreach (var card in Table.ShowingCards)
+                            card.IsActive = false;
+                        Thread.Sleep(500);
+                    }
+                    var msg = new Packet(PacketId.Message, JValue.FromObject($"{CurrentWaitingOn.Player.Name} misses their turn; remaining: {CurrentWaitingOn.Player.MissingGoes}"));
+                    foreach (var player in Players)
+                        player.Value.Send(msg);
+                }
                 PreviousWaitingOn = CurrentWaitingOn;
                 CurrentWaitingOn = getNextMatch(CurrentWaitingOn, x => !x.Finished, direction);
                 if (CurrentWaitingOn == null)
                     break;
-                if(CurrentWaitingOn.Player.MissingGoes > 0)
-                {
-                    CurrentWaitingOn.Player.MissingGoes--;
-                    var msg = new Packet(PacketId.Message, JValue.FromObject($"{CurrentWaitingOn.Player.Name} misses their turn; remaining: {CurrentWaitingOn.Player.MissingGoes}"));
-                    foreach (var player in Players)
-                        player.Value.Send(msg);
-                    // TODO: miss turns must be >0 in order for loop to occur again
-                }
             } while (CurrentWaitingOn.Player.MissingGoes > 0);
         }
 
@@ -220,7 +235,7 @@ namespace MacauGame.Server
                     x.Game = Program.GAME_TYPE;
                     x.InternalIP = IPAddress.Parse(Program.GetLocalIPAddress());
                     x.ExternalIP = IPAddress.Parse(getIp());
-                    x.Name = "This one - " + Environment.UserName;
+                    x.Name = DateTime.Now.ToString("yyyy/MM/dd") + " - " + Environment.UserName;
                     x.Port = PORT;
                     x.IsPortForward = true;
                 }).Result;

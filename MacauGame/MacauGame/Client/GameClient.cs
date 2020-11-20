@@ -158,11 +158,19 @@ namespace MacauGame.Client
             {
                 var jary = (JArray)packet.Content;
                 string log = "* Cards placed down:";
+                bool seven = false;
                 foreach (JObject jobj in jary)
                 {
                     var card = new Card(jobj);
                     table.ShowingCards.Add(card);
                     log += $"\r\n * {card}";
+                    if (card.Value == Number.Seven)
+                        seven = true;
+                }
+                if(seven)
+                {
+                    foreach (var x in table.ShowingCards)
+                        x.IsActive = false;
                 }
                 this.Invoke(new Action(() =>
                 {
@@ -204,12 +212,33 @@ namespace MacauGame.Client
                 HasFinished = packet.Content["game_ended"].ToObject<bool>();
                 this.Invoke(new Action(() =>
                 {
-                    Event($"* {player.Name} has finished in position {player.FinishedPosition.Value}", Color.Purple, FontStyle.Bold);
+                    if(HasFinished)
+                    {
+                        var order = "Game ended:";
+                        foreach (var p in Players)
+                            if (p.FinishedPosition.HasValue == false)
+                                p.FinishedPosition = Players.Count;
+                        foreach(var orp in Players.OrderBy(x => x.FinishedPosition.Value))
+                        {
+                            order += $"\r\n {Program.FormatPrefix(orp.FinishedPosition.Value)}: {orp.Name}";
+                        }
+                        Event(order, Color.Purple, FontStyle.Bold);
+                        CanInteract = false;
+                    } else
+                    {
+                        Event($"* {player.Name} has finished in position {player.FinishedPosition.Value}", Color.Purple, FontStyle.Bold);
+                    }
                     UpdateUI();
                 }));
             } else if (packet.Id == PacketId.Message)
             {
                 Event($"> {packet.Content.ToObject<string>()}");
+            } else if(packet.Id == PacketId.PlayerHasVotedStart)
+            {
+                var id = packet.Content.ToObject<string>();
+                var player = Players.FirstOrDefault(x => x.Id == id);
+                player.VotedToStart = true;
+                this.Invoke(new Action(() => DisplayPlayers()));
             }
         }
 
@@ -454,7 +483,6 @@ namespace MacauGame.Client
 
         private void pbPlayerA_Click(object sender, EventArgs e)
         {
-            return;
 #if DEBUG
             var card = table.DrawCard();
             if (card.IsPickupCard || card.Value == Number.Four)
@@ -504,6 +532,9 @@ namespace MacauGame.Client
                         Label.ForeColor = Color.Silver;
                     else if (pos == 3)
                         Label.ForeColor = Color.Brown;
+                } else if(player.VotedToStart)
+                {
+                    Label.Text = $"✔️{player.Name}";
                 }
             }
             public void Reset()
@@ -583,11 +614,12 @@ namespace MacauGame.Client
 
         private void pbPlayerB_Click(object sender, EventArgs e)
         {
-            return;
+#if DEBUG
             SelfPlayer = SelfPlayer ?? new Player("aaaa", "Alex");
             SelfPlayer.Hand = SelfPlayer.Hand ?? new List<Card>();
             SelfPlayer.Hand.Add(table.DrawCard());
             DisplayHand();
+#endif
         }
 
         private void btnPlace_Click(object sender, EventArgs e)

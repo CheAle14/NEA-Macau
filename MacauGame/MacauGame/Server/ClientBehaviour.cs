@@ -23,7 +23,7 @@ namespace MacauGame.Server
         public string Id { get { return Player.Id; } set { Player.Id = value; } }
         public string Name { get { return Player.Name; } set { Player.Name = value; } }
 
-        public bool VotedToStart = false;
+        public bool VotedToStart { get => Player.VotedToStart; set { Player.VotedToStart = value; } }
 
         public bool ForceUserAnyway = false;
 
@@ -280,6 +280,10 @@ namespace MacauGame.Server
                     if(count >= Server.Players.Count && Server.Players.Count >= minimum)
                     {
                         Server.StartGame();
+                    } else
+                    {
+                        var pck = new Packet(PacketId.PlayerHasVotedStart, JValue.FromObject(Id));
+                        Sessions.Broadcast(pck.ToString());
                     }
                 });
             } else if (packet.Id == PacketId.IndicateSkipsTurn)
@@ -296,8 +300,7 @@ namespace MacauGame.Server
                     Send(packet.Reply(PacketId.Error, JValue.FromObject("You are not missing any turns to skip - perhaps you meant to pickup?")));
                     return;
                 }
-                Player.MissingGoes--;
-                Player.MultiTurnSkip = Player.MissingGoes > 0;
+                Player.MultiTurnSkip = Player.MissingGoes > 1;
                 Send(packet.Reply(PacketId.Success, JValue.CreateNull()));
                 string msg = $"{Name} is skipped, ";
                 if (Player.MissingGoes == 0)

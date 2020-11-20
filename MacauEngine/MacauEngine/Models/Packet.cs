@@ -84,6 +84,7 @@ namespace MacauEngine.Models
         #region Server -> Client Codes
         ProvidePlayerInfo,
         ProvideGameInfo,
+        PlayerHasVotedStart,
         ClearActive,
         BulkPickupCards,
         WaitingOnYou,

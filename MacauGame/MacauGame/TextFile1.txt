@@ -1,0 +1,18 @@
+﻿START	INP		
+		BRZ		END
+		ADD		total
+		STA		total
+		LDA		numvals
+		ADD		increment
+		STA		numvals
+		BRA		START
+END		LDA		numvals
+		OUT
+		LDA		total
+		OUT
+
+
+
+total	DAT		0
+numvals	DAT		0
+increment	DAT	1

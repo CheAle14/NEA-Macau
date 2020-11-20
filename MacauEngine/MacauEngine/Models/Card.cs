@@ -152,7 +152,7 @@ namespace MacauEngine.Models
 
         public override string ToString()
         {
-            return baseText() + (IsActive ? "(A)" : "");
+            return baseText() + (IsActive ? " (Active)" : "");
         }
     }
 }
