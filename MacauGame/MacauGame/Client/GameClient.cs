@@ -643,7 +643,7 @@ namespace MacauGame.Client
             var lastCard = selectedProposedCards.Last();
             if(lastCard.Value == Number.Ace && lastCard.AceSuit.HasValue == false)
             {
-                var form = new AceSelect();
+                var form = new AceSelect(); 
                 form.ShowDialog();
                 lastCard.AceSuit = form.Selection ?? lastCard.House;
             }

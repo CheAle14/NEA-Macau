@@ -67,7 +67,6 @@ namespace MacauGame.Server
         public Dictionary<string, ClientBehaviour> Players { get; set; }
 
         public List<ClientBehaviour> OrderedPlayers { get; set; }
-        public ClientBehaviour PreviousWaitingOn { get; set; }
         public ClientBehaviour CurrentWaitingOn { get; set; }
 
 #if USING_MLAPI
@@ -112,7 +111,7 @@ namespace MacauGame.Server
                     player.Player.Hand.Add(Table.DrawCard());
                 }
                 player.SendGameInfo(false);
-                Thread.Sleep(500);
+                Thread.Sleep(50);
             }
             Log.Info($"Finished starting game, waiting on action from {CurrentWaitingOn.Name}");
         }
@@ -146,29 +145,37 @@ namespace MacauGame.Server
             do
             {
                 if(CurrentWaitingOn.Player.MissingGoes > 0)
-                { // 5d
+                { 
                     CurrentWaitingOn.Player.MissingGoes--;
+                    var jArray = new JArray();
                     var pickupAmount = Table.ShowingCards.Where(x => x.IsActive && x.IsPickupCard).Sum(x => x.PickupValue);
+                    bool clearActive = pickupAmount > 0;
                     if(pickupAmount > 0)
                     {
                         while(pickupAmount > 0 && Table.Deck.Count > 0)
                         {
                             var crd = Table.DrawCard();
+                            jArray.Add(crd.ToJson());
                             CurrentWaitingOn.Player.Hand.Add(crd);
                             pickupAmount--;
                         }
                         var packet = new Packet(PacketId.ClearActive, JValue.CreateNull());
                         foreach (var player in Players)
                             player.Value.Send(packet);
+                        Thread.Sleep(500);
+                        CurrentWaitingOn.Send(new Packet(PacketId.BulkPickupCards, jArray));
+                    }
+                    var fourAmount = Table.ShowingCards.Where(x => x.IsActive && x.Value == Number.Four).Count();
+                    if(fourAmount > 0)
+                        CurrentWaitingOn.Player.MissingGoes += fourAmount;
+                    clearActive = clearActive || fourAmount > 0;
+                    if(clearActive)
                         foreach (var card in Table.ShowingCards)
                             card.IsActive = false;
-                        Thread.Sleep(500);
-                    }
                     var msg = new Packet(PacketId.Message, JValue.FromObject($"{CurrentWaitingOn.Player.Name} misses their turn; remaining: {CurrentWaitingOn.Player.MissingGoes}"));
                     foreach (var player in Players)
                         player.Value.Send(msg);
                 }
-                PreviousWaitingOn = CurrentWaitingOn;
                 CurrentWaitingOn = getNextMatch(CurrentWaitingOn, x => !x.Finished, direction);
                 if (CurrentWaitingOn == null)
                     break;

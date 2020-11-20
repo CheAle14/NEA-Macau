@@ -302,15 +302,8 @@ namespace MacauGame.Server
                 }
                 Player.MultiTurnSkip = Player.MissingGoes > 1;
                 Send(packet.Reply(PacketId.Success, JValue.CreateNull()));
-                string msg = $"{Name} is skipped, ";
-                if (Player.MissingGoes == 0)
-                    msg += "they may go next turn";
-                else
-                    msg += $"they have {Player.MissingGoes} more goes to miss";
-                var pong = new Packet(PacketId.Message, JValue.FromObject(msg));
                 foreach (var player in Server.OrderedPlayers)
                 {
-                    player.Send(pong.ToString());
                     player.Send(new Packet(PacketId.ClearActive, JValue.CreateNull()));
                 }
                 Server.MoveNextPlayer();
