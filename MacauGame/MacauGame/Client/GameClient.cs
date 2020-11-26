@@ -216,9 +216,14 @@ namespace MacauGame.Client
                     {
                         var order = "Game ended:";
                         foreach (var p in Players)
+                        {
                             if (p.FinishedPosition.HasValue == false)
+                            {
+                                Event($"[DBG] {p.Name} has no FinishedPosition, setting to {Players.Count}");
                                 p.FinishedPosition = Players.Count;
-                        foreach(var orp in Players.OrderBy(x => x.FinishedPosition.Value))
+                            }
+                        }
+                        foreach (var orp in Players.OrderBy(x => x.FinishedPosition.Value))
                         {
                             order += $"\r\n {Program.FormatPrefix(orp.FinishedPosition.Value)}: {orp.Name}";
                         }

@@ -172,7 +172,8 @@ namespace MacauGame.Server
                     if(clearActive)
                         foreach (var card in Table.ShowingCards)
                             card.IsActive = false;
-                    var msg = new Packet(PacketId.Message, JValue.FromObject($"{CurrentWaitingOn.Player.Name} misses their turn; remaining: {CurrentWaitingOn.Player.MissingGoes}"));
+                    var msg = new Packet(PacketId.Message, JValue.FromObject($"{CurrentWaitingOn.Player.Name} misses their turn;" +
+                        $" remaining: {CurrentWaitingOn.Player.MissingGoes}"));
                     foreach (var player in Players)
                         player.Value.Send(msg);
                 }
