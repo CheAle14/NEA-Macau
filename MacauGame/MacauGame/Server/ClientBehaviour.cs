@@ -275,9 +275,11 @@ namespace MacauGame.Server
                 {
                     VotedToStart = true;
                     int count = Server.Players.Values.Count(x => x.VotedToStart);
-                    int minimum = Math.Min(2, Server.Players.Count);
-                    Log.Info($"{Name} has voted to start: {count}/{minimum}");
-                    if(count >= Server.Players.Count && Server.Players.Count >= minimum)
+                    int needed = Math.Max(2, Server.Players.Count);
+                    // needed -> whichever is highest of 2 or the num. players
+                    //        -> if one player, then 2 is higher number, thus needed = 2.
+                    Log.Info($"{Name} has voted to start: {count}/{needed}");
+                    if(count >= needed)
                     {
                         Server.StartGame();
                     } else
@@ -441,6 +443,16 @@ namespace MacauGame.Server
                     this.Player = existing.Player;
                 } else
                 {
+                    if(!Server.GameStarted)
+                    {
+                        Context.WebSocket.Close(CloseStatusCode.Normal, "Game has already begun, no new players allowed");
+                        return;
+                    }
+                    if(Server.Players.Count >= 6)
+                    {
+                        Context.WebSocket.Close(CloseStatusCode.Normal, "Game already has 6 players, max capacity reached.");
+                        return;
+                    }
                     Server.Players[hwid] = this;
                     this.Player.Order = Server.Players.Count;
                 }
@@ -449,10 +461,7 @@ namespace MacauGame.Server
                 var newPlayer = new Packet(PacketId.NewPlayerJoined, this.Player.ToJson());
                 foreach(var p in Server.Players.Values)
                 {
-                    if(p.Player.Id == hwid)
-                    {
-
-                    } else
+                    if(p.Player.Id != hwid)
                     {
                         p.Send(newPlayer);
                     }

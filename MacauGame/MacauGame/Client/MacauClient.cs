@@ -10,6 +10,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -87,11 +88,12 @@ namespace MacauGame.Client
         private void dgvMasterlist_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0 || e.ColumnIndex < 0)
-                return;
+                return; // clicked somewhere on the table, but not in a cell
             var row = dgvMasterlist.Rows[e.RowIndex];
             var cell = row.Cells[e.ColumnIndex];
             if(cell is DataGridViewButtonCell btn)
             {
+                // btn.Value is the IP address they clicked on
                 txtIP.Tag = btn.Value;
                 txtIP.Text = btn.Value.ToString();
                 btnConnect.PerformClick();
@@ -110,6 +112,11 @@ namespace MacauGame.Client
                 MessageBox.Show("You must enter a name");
                 return;
             }
+            if(txtName.Text.Length < 3 || txtName.Text.Length > 16)
+            {
+                MessageBox.Show("Name must be between 3 and 16 characters long");
+                return;
+            }
             if(string.IsNullOrWhiteSpace(txtIP.Text))
             {
                 MessageBox.Show("You must select an IP from the masterlist, or double-click for manual entry");
@@ -126,7 +133,15 @@ namespace MacauGame.Client
             waitingForResponse = new Dictionary<int, AwaitedPacket>();
             Program.Configuration.Name = txtName.Text;
             Program.Configuration.IP = txtIP.Text;
-            WS_Client = new WebSocket($"ws://{ipad}:{Server.MacauServer.PORT}/" +
+            string ipStr;
+            if(ipad.AddressFamily == AddressFamily.InterNetwork)
+            { // IPv4 address, can be used directly
+                ipStr = ipad.ToString();
+            } else
+            { // assume IPv6 address, must be wrapped in square brackets.
+                ipStr = "[" + ipad.ToString() + "]";
+            }
+            WS_Client = new WebSocket($"ws://{ipStr}:{Server.MacauServer.PORT}/" +
                 $"?name={Uri.EscapeDataString(txtName.Text)}&hwid={SELF_HWID}");
             Log.Info($"Connecting: {WS_Client.Url}");
             WS_Client.OnOpen += WS_Client_OnOpen;
