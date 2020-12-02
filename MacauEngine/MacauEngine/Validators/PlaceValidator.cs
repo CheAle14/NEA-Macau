@@ -16,6 +16,12 @@ namespace MacauEngine.Validators
     {
         List<Card> PlacingDown;
         Card AlreadyOnTop;
+
+        /// <summary>
+        /// Instiantiates an instance with the provided cards to be placed, and the top table card
+        /// </summary>
+        /// <param name="placing">An enumerable of the cards to be placed</param>
+        /// <param name="currentTableCard">The top table card</param>
         public PlaceValidator(IEnumerable<Card> placing, Card currentTableCard)
         {
             PlacingDown = placing.ToList();
@@ -34,6 +40,10 @@ namespace MacauEngine.Validators
                 : ValidationResult.FromError($"Cannot place {values.Count()} different card-types at once; must place all the same: eg three Twos");
         }
 
+        /// <summary>
+        /// Gets the result of the validation
+        /// </summary>
+        /// <returns></returns>
         public ValidationResult Validate()
         {
             var allCards = new List<Card>();

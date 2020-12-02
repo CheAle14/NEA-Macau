@@ -59,9 +59,18 @@ namespace MacauEngine.Models
         /// </summary>
         public bool IsActive { get; set; }
 
+        /// <summary>
+        /// Gets whether this card is Red (Diamond or Heart)
+        /// </summary>
         public bool IsRed => House == Suit.Diamond || House == Suit.Heart;
+        /// <summary>
+        /// Gets whether this card is Black (Club or Spade)
+        /// </summary>
         public bool IsBlack => House == Suit.Club || House == Suit.Spade;
 
+        /// <summary>
+        /// Gets the expected image file or resource file name for this card
+        /// </summary>
         public string ImageName { get
             {
                 if (Value == Number.Joker)
@@ -150,6 +159,9 @@ namespace MacauEngine.Models
             return $"{Value} of {House}s";
         }
 
+        /// <summary>
+        /// Gets a worded string represenation of this card (eg, Two of Hearts)
+        /// </summary>
         public override string ToString()
         {
             return baseText() + (IsActive ? " (Active)" : "") + (AceSuit.HasValue ? $" (c.t. {AceSuit.Value})" : "");

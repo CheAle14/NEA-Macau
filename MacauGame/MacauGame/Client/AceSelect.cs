@@ -26,11 +26,12 @@ namespace MacauGame.Client
             this.Text = "Select Ace";
             var size = new Size(101, 165);
             var gapX = 3;
-            var gapY = 10;
+            var gapY = 30;
             int y = 3;
             int x = 3;
             foreach (var house in new Suit[] { Suit.Club, Suit.Spade, Suit.Diamond, Suit.Heart})
             {
+                // Creates the four pictureboxes in the form with the four different house aces
                 var crd = new Card(house, Number.Ace);
                 var pb = new PictureBox();
                 pb.Name = crd.ImageName;

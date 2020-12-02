@@ -208,7 +208,7 @@ namespace MacauGame.Client
                 var who = packet.Content["id"].ToObject<string>();
                 var player = Players.First(x => x.Id == who);
                 player.Hand = new List<Card>();
-                player.FinishedPosition = System.Threading.Interlocked.Increment(ref Player._position);
+                player.FinishedPosition = packet.Content["pos"].ToObject<int>();
                 HasFinished = packet.Content["game_ended"].ToObject<bool>();
                 this.Invoke(new Action(() =>
                 {
@@ -298,14 +298,17 @@ namespace MacauGame.Client
             } else
             {
                 selectedProposedCards.Add(card);
+                // verify that the newly selected cards, and existing selected cards
+                // can be placed onto the current table card
                 var validator = new PlaceValidator(selectedProposedCards, table.ShowingCards.Last());
                 var result = validator.Validate();
                 if(result.IsSuccess == false)
-                {
+                { // cards cannot be placed on this, so we need to remove the newly selected and show error
                     selectedProposedCards.Remove(card);
                     MessageBox.Show(result.ErrorReason, "Invalid Placement", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
+                // newly selected card is valid placement, move picturebox up to reveal label beneath
                 pb.Location = new Point(pb.Location.X, pb.Location.Y - 30);
             }
             int i = 1;
@@ -539,7 +542,7 @@ namespace MacauGame.Client
                         Label.ForeColor = Color.Brown;
                 } else if(player.VotedToStart)
                 {
-                    Label.Text = $"✔️{player.Name}";
+                    Label.Text = $"✅ {player.Name}";
                 }
             }
             public void Reset()
@@ -571,6 +574,15 @@ namespace MacauGame.Client
                 }));
                 return;
             }
+            // Players need to be displayed in the proper order relative to the player
+            // Player on left side of screen should come after player
+            // Then top-left
+            // Then top-middle
+            // Then top-right
+            // Then right side
+
+            // If there aren't 5 other players, we'll need to hide some slots and only use some
+
             var selfIndex = Players.IndexOf(SelfPlayer);
             var shiftingToFront = new List<Player>();
             for (int i = selfIndex + 1; i < Players.Count; i++)
@@ -586,21 +598,25 @@ namespace MacauGame.Client
             resetPlayers();
             if (shiftingToFront.Count == 1)
             {
+                // only top-middle visible
                 PlayerB.Set(shiftingToFront[0]);
             }
             else if (shiftingToFront.Count == 2)
             {
+                // top-left and top-right
                 PlayerA.Set(shiftingToFront[0]);
                 PlayerC.Set(shiftingToFront[1]);
             }
             else if (shiftingToFront.Count == 3)
             {
+                // entire top row
                 PlayerA.Set(shiftingToFront[0]);
                 PlayerB.Set(shiftingToFront[1]);
                 PlayerC.Set(shiftingToFront[2]);
             }
             else if (shiftingToFront.Count == 4)
             {
+                // left, and top row
                 PlayerD.Set(shiftingToFront[0]);
                 PlayerA.Set(shiftingToFront[1]);
                 PlayerB.Set(shiftingToFront[2]);
@@ -608,6 +624,7 @@ namespace MacauGame.Client
             }
             else if (shiftingToFront.Count == 5)
             {
+                // all player slots used
                 PlayerD.Set(shiftingToFront[0]);
                 PlayerA.Set(shiftingToFront[1]);
                 PlayerB.Set(shiftingToFront[2]);
@@ -741,7 +758,15 @@ namespace MacauGame.Client
 
 
         #region Resizing
+        // In order to allow re-sizing, I can 'stretch' certain controls horizontally whilst keeping the proportions the same
+
+        /// <summary>
+        /// Holds the ratio of the X locations of the controls to the width of the form
+        /// </summary>
         Dictionary<Control, double> locationRatios = new Dictionary<Control, double>();
+        /// <summary>
+        /// Holds the ratio of the width of the controls to the width of the form
+        /// </summary>
         Dictionary<Control, double> widthRatios = new Dictionary<Control, double>();
         private void GameClient_Resize(object sender, EventArgs e)
         {
@@ -762,7 +787,7 @@ namespace MacauGame.Client
         }
         #endregion
         private void lblCardHint_Click(object sender, EventArgs e)
-        {
+        { // In the event that the client bugs out, clicking on this label resets things
             Send(new Packet(PacketId.GetGameInfo, JValue.CreateNull()));
         }
     }

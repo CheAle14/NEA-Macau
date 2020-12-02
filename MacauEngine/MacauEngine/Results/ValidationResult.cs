@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace MacauEngine.Results
 {
-    public class ValidationResult
+    /// <summary>
+    /// The result following the validation of card placement
+    /// </summary>
+    public class ValidationResult : IResult
     {
         private ValidationResult(bool thing, string reason)
         {
@@ -16,8 +19,10 @@ namespace MacauEngine.Results
         internal static ValidationResult FromSuccess() => new ValidationResult(true, null);
         internal static ValidationResult FromError(string reason) => new ValidationResult(false, reason);
 
+        /// <inheritdoc/>
         public bool IsSuccess { get; }
 
+        /// <inheritdoc/>
         public string ErrorReason { get; }
     }
 }

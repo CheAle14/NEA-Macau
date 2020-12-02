@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace MacauEngine.Results
 {
     /// <summary>
-    /// A common interface for all result types
+    /// A generic result type
     /// </summary>
     public interface IResult
     {

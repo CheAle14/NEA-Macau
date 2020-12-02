@@ -21,6 +21,9 @@ namespace MacauGame.Client
 {
     public partial class MacauClient : Form
     {
+        /// <summary>
+        /// The unique hardware ID of this computer
+        /// </summary>
         public string SELF_HWID { get; private set; }
         public MacauClient()
         {

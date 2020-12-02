@@ -12,6 +12,8 @@ using System.Windows.Forms;
 
 namespace MacauGame.Client
 {
+    // Not really used; but present in case people want to change out the images.
+    // This form displays all the cards in a deck
     public partial class ThemeClient : Form
     {
         public ThemeClient()

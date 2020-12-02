@@ -119,14 +119,6 @@ namespace MacauGame.Server
             return true;
         }
 
-        public void SendWaitingOn()
-        {
-            var jobj = new JObject();
-            jobj["miss"] = Player.MissingGoes;
-            var packet = new Packet(PacketId.WaitingOnYou, jobj);
-            Send(packet.ToString());
-        }
-
         public void SendGameInfo(bool lockNeeded = true)
         {
             var jArray = new JArray();
@@ -182,9 +174,6 @@ namespace MacauGame.Server
             {
                 if (ErrorIfNotCurrent(packet))
                     return;
-                var jsonArray = packet.Content.ToArray();
-                var requested = jsonArray.Select(x => new Card((JObject)x));
-                
                 if(Player.MissingGoes > 0)
                 {
                     if(Player.MultiTurnSkip)
@@ -193,6 +182,9 @@ namespace MacauGame.Server
                         return;
                     }
                 }
+                var jsonArray = packet.Content.ToArray();
+                // creates an array of Card objects from the JSON-formatted array
+                var requested = jsonArray.Select(x => new Card((JObject)x));
                 var validator = new PlaceValidator(requested, Server.Table.ShowingCards.Last());
                 var result = validator.Validate();
                 if(!result.IsSuccess)
@@ -244,7 +236,7 @@ namespace MacauGame.Server
                     }
                     if (Player.Hand.Count == 0)
                     {
-                        //Server.OrderedPlayers.Remove(this);
+                        Player.FinishedPosition = System.Threading.Interlocked.Increment(ref Player._position);
                         Log.Info($"{Name} has finished");
                     } else
                     {
@@ -256,6 +248,7 @@ namespace MacauGame.Server
                     {
                         var jobj = new JObject();
                         jobj["id"] = Player.Id;
+                        jobj["pos"] = Player.FinishedPosition;
                         jobj["game_ended"] = gameHasEnded;
                         var pong = new Packet(PacketId.PlayerFinished, jobj);
                         Sessions.Broadcast(pong.ToString());
@@ -443,7 +436,7 @@ namespace MacauGame.Server
                     this.Player = existing.Player;
                 } else
                 {
-                    if(!Server.GameStarted)
+                    if(Server.GameStarted)
                     {
                         Context.WebSocket.Close(CloseStatusCode.Normal, "Game has already begun, no new players allowed");
                         return;

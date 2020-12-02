@@ -1,0 +1,579 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MacauEngine</name>
+    </assembly>
+    <members>
+        <member name="T:MacauEngine.Models.Card">
+            <summary>
+            Represents a common playing card
+            </summary>
+        </member>
+        <member name="M:MacauEngine.Models.Card.#ctor(Newtonsoft.Json.Linq.JObject)">
+            <summary>
+            Constructs a card instance from a networked set of values
+            </summary>
+            <param name="obj"></param>
+        </member>
+        <member name="M:MacauEngine.Models.Card.#ctor(MacauEngine.Models.Enums.Suit,MacauEngine.Models.Enums.Number)">
+            <summary>
+            Constructs a card instance from the given values
+            </summary>
+        </member>
+        <member name="P:MacauEngine.Models.Card.House">
+            <summary>
+            Gets or sets the <see cref="T:MacauEngine.Models.Enums.Suit"/> of this Card
+            </summary>
+        </member>
+        <member name="P:MacauEngine.Models.Card.AceSuit">
+            <summary>
+            Gets or sets the suit this Ace changes to. If this is not an Ace, this is null.
+            </summary>
+        </member>
+        <member name="P:MacauEngine.Models.Card.Value">
+            <summary>
+            Gets or sets the <see cref="T:MacauEngine.Models.Enums.Number"/> of this Card
+            </summary>
+        </member>
+        <member name="P:MacauEngine.Models.Card.IsPickupCard">
+            <summary>
+            Gets whether this Card can force another player to pick cards up
+            </summary>
+        </member>
+        <member name="P:MacauEngine.Models.Card.IsDefenseCard">
+            <summary>
+            Gets whether this Card can defend against pickup cards
+            </summary>
+        </member>
+        <member name="P:MacauEngine.Models.Card.IsSpecialCard">
+            <summary>
+            Gets whether this Card has some sort of special effect
+            </summary>
+        </member>
+        <member name="P:MacauEngine.Models.Card.IsActive">
+            <summary>
+            Gets or sets whether this Card is currently active
+            </summary>
+        </member>
+        <member name="P:MacauEngine.Models.Card.IsRed">
+            <summary>
+            Gets whether this card is Red (Diamond or Heart)
+            </summary>
+        </member>
+        <member name="P:MacauEngine.Models.Card.IsBlack">
+            <summary>
+            Gets whether this card is Black (Club or Spade)
+            </summary>
+        </member>
+        <member name="P:MacauEngine.Models.Card.ImageName">
+            <summary>
+            Gets the expected image file or resource file name for this card
+            </summary>
+        </member>
+        <member name="P:MacauEngine.Models.Card.PickupValue">
+            <summary>
+            Gets the number of cards a player has to pickup if attacked by this one
+            </summary>
+        </member>
+        <member name="M:MacauEngine.Models.Card.Update(Newtonsoft.Json.Linq.JObject)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MacauEngine.Models.Card.ToJson">
+            <inheritdoc/>
+        </member>
+        <member name="M:MacauEngine.Models.Card.Equals(MacauEngine.Models.Card)">
+            <summary>
+            Determines whether two card objects refer to the same playing card
+            </summary>
+            <param name="other">Other instance to compare with</param>
+            <returns>True if both cards refer to the same playing card</returns>
+        </member>
+        <member name="M:MacauEngine.Models.Card.GetHashCode">
+            <inheritdoc/>
+        </member>
+        <member name="M:MacauEngine.Models.Card.Equals(System.Object)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MacauEngine.Models.Card.ToString">
+            <summary>
+            Gets a worded string represenation of this card (eg, Two of Hearts)
+            </summary>
+        </member>
+        <member name="T:MacauEngine.Models.Enums.Number">
+            <summary>
+            Represents the number value on a playing card
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.Enums.Number.None">
+            <summary>
+            Represents a default value, where no numberh as been set
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.Enums.Number.Two">
+            <summary>
+            A playing card of value Two
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.Enums.Number.Three">
+            <summary>
+            A playing card of value Three
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.Enums.Number.Four">
+            <summary>
+            A playing card of value Four
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.Enums.Number.Five">
+            <summary>
+            A playing card of value Five
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.Enums.Number.Six">
+            <summary>
+            A playing card of value Six
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.Enums.Number.Seven">
+            <summary>
+            A playing card of value Seven
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.Enums.Number.Eight">
+            <summary>
+            A playing card of value Eight
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.Enums.Number.Nine">
+            <summary>
+            A playing card of value Nine
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.Enums.Number.Ten">
+            <summary>
+            A playing card of value Ten
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.Enums.Number.Jack">
+            <summary>
+            A face card of value Jack
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.Enums.Number.Queen">
+            <summary>
+            A face card of value Queen
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.Enums.Number.King">
+            <summary>
+            A face card of value King
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.Enums.Number.Ace">
+            <summary>
+            A playing card of value Ace
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.Enums.Number.Joker">
+            <summary>
+            A Joker card
+            </summary>
+        </member>
+        <member name="T:MacauEngine.Models.Enums.Suit">
+            <summary>
+            Represents the House/Suit of a playing card
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.Enums.Suit.None">
+            <summary>
+            Default value, no suit set
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.Enums.Suit.Diamond">
+            <summary>
+            Represents the Red Diamonds
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.Enums.Suit.Heart">
+            <summary>
+            Represents Red Hearts
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.Enums.Suit.Spade">
+            <summary>
+            Represents Black Spades
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.Enums.Suit.Club">
+            <summary>
+            Represents Black Clubs
+            </summary>
+        </member>
+        <member name="T:MacauEngine.Models.MacauObject">
+            <summary>
+            Represents a base level object that can be sent over network
+            </summary>
+        </member>
+        <member name="M:MacauEngine.Models.MacauObject.#ctor">
+            <summary>
+            Constructor for new objects, not just recieved from network
+            </summary>
+        </member>
+        <member name="M:MacauEngine.Models.MacauObject.#ctor(Newtonsoft.Json.Linq.JObject)">
+            <summary>
+            Constructor for objects recieved over network
+            </summary>
+            <param name="jObj">The json encoded object, generated from the corresponding <see cref="M:MacauEngine.Models.MacauObject.ToJson"/> function</param>
+        </member>
+        <member name="M:MacauEngine.Models.MacauObject.Update(Newtonsoft.Json.Linq.JObject)">
+            <summary>
+            Loads the values from the JSON object to this object
+            </summary>
+            <param name="json">The properties and values to load</param>
+        </member>
+        <member name="M:MacauEngine.Models.MacauObject.ToJson">
+            <summary>
+            Encode this object as a JSON object to be sent over network
+            </summary>
+            <returns>The Json representation of this object</returns>
+        </member>
+        <member name="M:MacauEngine.Models.MacauObject.ToString">
+            <summary>
+            Returns a stringular representation, this should be overriden since it shows JSON in the base
+            </summary>
+            <returns>JSON representation</returns>
+        </member>
+        <member name="T:MacauEngine.Models.Packet">
+            <summary>
+            Represents a single unit of data sent from and/or to the client and/or server
+            </summary>
+        </member>
+        <member name="M:MacauEngine.Models.Packet.#ctor(MacauEngine.Models.PacketId,Newtonsoft.Json.Linq.JToken,System.Int32)">
+            <summary>
+            Instanstiates a new instance with the specified Id, JSON content and sequence reference
+            </summary>
+        </member>
+        <member name="M:MacauEngine.Models.Packet.#ctor(MacauEngine.Models.PacketId,Newtonsoft.Json.Linq.JToken)">
+            <summary>
+            Instantiates a new instance with the specified Id, JSON value and a sequence of 0
+            </summary>
+        </member>
+        <member name="M:MacauEngine.Models.Packet.#ctor(Newtonsoft.Json.Linq.JObject)">
+            <summary>
+            Instantiates a new instance by loading values from the provided JSON object
+            </summary>
+        </member>
+        <member name="M:MacauEngine.Models.Packet.Reply(MacauEngine.Models.PacketId,Newtonsoft.Json.Linq.JToken)">
+            <summary>
+            Creates a new response packet to this instance
+            </summary>
+            <param name="id">The Id for which the response packet will have</param>
+            <param name="value">The JSON content of the response packet</param>
+            <returns>A packet, whose Response value is equal to this instances Sequence</returns>
+        </member>
+        <member name="M:MacauEngine.Models.Packet.ToJson">
+            <summary>
+            Returns this packet as a JSON respresentation
+            </summary>
+        </member>
+        <member name="M:MacauEngine.Models.Packet.ToString">
+            <summary>
+            Returns the JSON representation of this packet properly indented
+            </summary>
+        </member>
+        <member name="P:MacauEngine.Models.Packet.Id">
+            <summary>
+            Gets or sets the Id of this packet, which indicates its purpose
+            </summary>
+        </member>
+        <member name="P:MacauEngine.Models.Packet.Content">
+            <summary>
+            The optional payload of this packet, can be null through JValue.CreateNull()
+            </summary>
+        </member>
+        <member name="P:MacauEngine.Models.Packet.Sequence">
+            <summary>
+            The quasi-unique sequence value to allow packets to response to this one
+            </summary>
+        </member>
+        <member name="P:MacauEngine.Models.Packet.Response">
+            <summary>
+            The optional Sequence value of the packet this instance is responding to
+            </summary>
+        </member>
+        <member name="T:MacauEngine.Models.PacketId">
+            <summary>
+            Specifies the purpose of the packet
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.PacketId.None">
+            <summary>
+            The packet has no purpose (unused)
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.PacketId.UnknownCode">
+            <summary>
+            Hypothetical error packet, indicating client sent an unknown packet
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.PacketId.Error">
+            <summary>
+            Response packet.
+            Indicates the packet's Content should be displayed as an error message
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.PacketId.Success">
+            <summary>
+            Response packet.
+            Indicates the operation for the prior packet was sucessfully performed
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.PacketId.Message">
+            <summary>
+            Indicates the packet's Content should be displayed as a generic message
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.PacketId.Disconnect">
+            <summary>
+            Indicates the receiver should close the WebSocket connection, with the Content as the reason why
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.PacketId.GetPlayerInfo">
+            <summary>
+            The client requires intelligence on an unknown player
+            Content is the ID of the player
+            See: <see cref="F:MacauEngine.Models.PacketId.ProvidePlayerInfo"/>
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.PacketId.GetGameInfo">
+            <summary>
+            The client requires information on the state of the current game
+            Content is null
+            See: <see cref="F:MacauEngine.Models.PacketId.ProvideGameInfo"/>
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.PacketId.PlaceCards">
+            <summary>
+            The client requests that the specified cards be placed
+            Content is an array of <see cref="T:MacauEngine.Models.Card"/>
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.PacketId.IndicateSkipsTurn">
+            <summary>
+            The client requests that they skip their turn, due to threat of Four(s)
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.PacketId.IndicatePickupCard">
+            <summary>
+            The client requests that they pickup a <see cref="T:MacauEngine.Models.Card"/>, or multiple cards if attack cards are placed
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.PacketId.VoteStartGame">
+            <summary>
+            The client requests that a vote to start the game be recorded in their name
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.PacketId.ProvidePlayerInfo">
+            <summary>
+            The server provides the information of the requested player.
+            Content: the Player
+            See: <see cref="F:MacauEngine.Models.PacketId.GetPlayerInfo"/>
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.PacketId.ProvideGameInfo">
+            <summary>
+            The server provides the information of the game, such as whose turn it is.
+            Content: the Game.
+            See: <see cref="F:MacauEngine.Models.PacketId.GetGameInfo"/>
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.PacketId.PlayerHasVotedStart">
+            <summary>
+            The server indicates the specified player has voted to start, so the clients can update the uI
+            Content: ID of the player who voted
+            See: <see cref="F:MacauEngine.Models.PacketId.VoteStartGame"/>
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.PacketId.ClearActive">
+            <summary>
+            The server indicates that the clients should set all table cards to Active = false.
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.PacketId.BulkPickupCards">
+            <summary>
+            The server indicates the client has picked up the specified cards to their Hand
+            Content: array of <see cref="T:MacauEngine.Models.Card"/>s
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.PacketId.WaitingOn">
+            <summary>
+            The server indicates whose turn it currently is
+            Content: id of player the server is waiting to go
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.PacketId.NewCardsPlaced">
+            <summary>
+            The server indicates the specified cards have been placed onto the table
+            Content: array of <see cref="T:MacauEngine.Models.Card"/>s
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.PacketId.NewPlayerJoined">
+            <summary>
+            The server provides the information of a new player
+            Content: <see cref="T:MacauEngine.Models.Player"/> object, without Hand info
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.PacketId.PlayerFinished">
+            <summary>
+            The server indicates a <see cref="T:MacauEngine.Models.Player"/> has no more cards remaining, 
+              and optionally information about whether the game has ended.
+            Content: 
+                - ID of player
+                - Position that player finished in (eg, 1[st] 2[nd] etc)
+                - Whether the game has ended
+            </summary>
+        </member>
+        <member name="T:MacauEngine.Models.Player">
+            <summary>
+            Represents the data of a generic player
+            </summary>
+        </member>
+        <member name="M:MacauEngine.Models.Player.#ctor(Newtonsoft.Json.Linq.JObject)">
+            <summary>
+            Instantiates the player instance from JSON
+            </summary>
+            <param name="obj">The JSON content to be loaded, passed to the Update function</param>
+        </member>
+        <member name="M:MacauEngine.Models.Player.#ctor(System.String,System.String)">
+            <summary>
+            Instantiates the player instance using the provided information
+            </summary>
+            <param name="id">The unique hardware ID of the player</param>
+            <param name="name">The non-unique name of the player</param>
+        </member>
+        <member name="P:MacauEngine.Models.Player.Id">
+            <summary>
+            Gets or sets the unique hardware ID of the player
+            </summary>
+        </member>
+        <member name="P:MacauEngine.Models.Player.Name">
+            <summary>
+            Gets or sets the display name of the player
+            </summary>
+        </member>
+        <member name="P:MacauEngine.Models.Player.Order">
+            <summary>
+            Gets or sets the position of the player in relation to the other players is, where 0 is first
+            </summary>
+        </member>
+        <member name="P:MacauEngine.Models.Player.MissingGoes">
+            <summary>
+            Gets or sets the number of turns the player is currently missing
+            </summary>
+        </member>
+        <member name="P:MacauEngine.Models.Player.MultiTurnSkip">
+            <summary>
+            Gets or sets whether the player is missing multiple turns
+            </summary>
+        </member>
+        <member name="P:MacauEngine.Models.Player.Hand">
+            <summary>
+            Gets or sets the list containing the cards the player has within their hand
+            </summary>
+        </member>
+        <member name="P:MacauEngine.Models.Player.VotedToStart">
+            <summary>
+            Gets or sets whether the player has voted to start the game
+            </summary>
+        </member>
+        <member name="P:MacauEngine.Models.Player.Finished">
+            <summary>
+            Gets whether the player is considered Finished due to no longer having any cards
+            </summary>
+        </member>
+        <member name="F:MacauEngine.Models.Player._position">
+            <summary>
+            Counter used to increment the position a player ended in
+            </summary>
+        </member>
+        <member name="P:MacauEngine.Models.Player.FinishedPosition">
+            <summary>
+            Gets or sets the position a player ended in, or null if not finished
+            </summary>
+        </member>
+        <member name="M:MacauEngine.Models.Player.ToJson(System.Boolean)">
+            <summary>
+            Converts this instance into its JSON representation
+            </summary>
+            <param name="includeHand">If true, include the cards of the player; if false, an empty list</param>
+        </member>
+        <member name="M:MacauEngine.Models.Player.ToJson">
+            <summary>
+            Converts this instance into its JSON representation, with the Hand as an empty list
+            </summary>
+            <returns>JSON representation without the hand</returns>
+        </member>
+        <member name="M:MacauEngine.Models.Player.Update(Newtonsoft.Json.Linq.JObject)">
+            <summary>
+            Sets the instances values from the JSON object
+            </summary>
+            <param name="json">JSON content from which to load values from</param>
+        </member>
+        <member name="M:MacauEngine.Models.Player.Equals(System.Object)">
+            <summary>
+            Returns true if the compared object is equal to this instance
+            </summary>
+            <param name="obj">The object to compare to</param>
+        </member>
+        <member name="M:MacauEngine.Models.Player.Equals(MacauEngine.Models.Player)">
+            <summary>
+            Determines equality with another player, based only on the Id and Name
+            </summary>
+            <param name="other">Other player with which to compare</param>
+        </member>
+        <member name="T:MacauEngine.Results.IResult">
+            <summary>
+            A generic result type
+            </summary>
+        </member>
+        <member name="P:MacauEngine.Results.IResult.IsSuccess">
+            <summary>
+            Gets whether the outcome is a success
+            </summary>
+        </member>
+        <member name="P:MacauEngine.Results.IResult.ErrorReason">
+            <summary>
+            If <see cref="P:MacauEngine.Results.IResult.IsSuccess"/> is true, this will be null. Otherwise, this gets the reason why this result failed.
+            </summary>
+        </member>
+        <member name="T:MacauEngine.Results.ValidationResult">
+            <summary>
+            The result following the validation of card placement
+            </summary>
+        </member>
+        <member name="P:MacauEngine.Results.ValidationResult.IsSuccess">
+            <inheritdoc/>
+        </member>
+        <member name="P:MacauEngine.Results.ValidationResult.ErrorReason">
+            <inheritdoc/>
+        </member>
+        <member name="T:MacauEngine.Validators.PlaceValidator">
+            <summary>
+            Determines whether the given set of cards can be placed on the current table card
+            </summary>
+        </member>
+        <member name="M:MacauEngine.Validators.PlaceValidator.#ctor(System.Collections.Generic.IEnumerable{MacauEngine.Models.Card},MacauEngine.Models.Card)">
+            <summary>
+            Instiantiates an instance with the provided cards to be placed, and the top table card
+            </summary>
+            <param name="placing">An enumerable of the cards to be placed</param>
+            <param name="currentTableCard">The top table card</param>
+        </member>
+        <member name="M:MacauEngine.Validators.PlaceValidator.Validate">
+            <summary>
+            Gets the result of the validation
+            </summary>
+            <returns></returns>
+        </member>
+    </members>
+</doc>
