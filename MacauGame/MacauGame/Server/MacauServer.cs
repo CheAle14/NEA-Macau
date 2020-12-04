@@ -234,6 +234,7 @@ namespace MacauGame.Server
 
         void masterlist()
         {
+            Log.Warn("IP of server is: " + Program.GetLocalIPAddress());
 #if USING_MLAPI
             Log.Info("Reaching out to ML...");
             try
@@ -254,7 +255,6 @@ namespace MacauGame.Server
             {
                 Log.Error("MasterlistStart", ex);
                 Log.Info("Server not hosted on ML.");
-                Log.Warn("Masterlist is disabled; IP of server is: " + Program.GetLocalIPAddress());
             }
 #else
             Log.Warn("Masterlist is disabled; IP of server is: " + Program.GetLocalIPAddress());
